@@ -2,6 +2,7 @@
 '''Composition class definition'''
 import json
 import logging
+import config
 
 class Composition:
 	def __init__(self,l_actleafs,l_actnoleafs,l_occurences):
