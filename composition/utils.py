@@ -69,6 +69,7 @@ def element_finder(ll,all_items_patient_i):
 
 def get_value(all_items_patient_i,f):
 	if(config.fr==1):
+		values=[]
 		logging.debug(f"BARA {all_items_patient_i[f]}")
 		value=all_items_patient_i[f][1]
 		valuestripped=re.sub(r"[\n\t\s]*", "", value)
@@ -80,16 +81,16 @@ def get_value(all_items_patient_i,f):
 			while(somevalue):
 				if(g<len(all_items_patient_i)):
 					if(all_items_patient_i[g][0].rstrip(" ")=="Value"):
-						if(value==""):
-							value=all_items_patient_i[g][1]
-						else:
-							value=value+","+all_items_patient_i[g][1]
+						value=all_items_patient_i[g][1]
+						values.append(value)
 					else:
 						somevalue=False
 				else:
 					somevalue=False		
 				g=g+1
-		return value
+		else:
+			values.append(value)
+		return values
 	elif(config.fr==2):
 		print("Not yet implemented")
 		exit(0)
@@ -125,38 +126,50 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 					logging.debug(f'GJH {ll.get_path()} {all_items_patient_i[f+1]} {all_items_patient_i[f+1][1]}')
 
 				#if all_items_bh[f][1] not empty then that's the value
-				value=get_value(all_items_patient_i,f)
+				values=get_value(all_items_patient_i,f)
+				for i,value in enumerate(values):
+					#fix kras and nras mapping
+					if( ( "nras" in ll.get_id() ) or ("kras" in ll.get_id() ) ):
+						if(value.lower()=="not done"):
+							myvalue={}
+	#							myvalue['code']="at0007"
+							myvalue['value']="Indeterminate"
+	#							myvalue['terminology']="local"
+							myvalue["code"]="[LOINC(2.65)::LA11884-6]"
+							myvalue["terminology"]="LOINC"
+							value=myvalue
+						elif (value.lower()=="not mutated"):
+							myvalue={}
+	#							myvalue['code']="at0005"
+							myvalue['value']="Absent"
+	#							myvalue['terminology']="local"
+							myvalue["code"]="[LOINC(2.65)::LA9634-2]"
+							myvalue["terminology"]="LOINC"
+							value=myvalue
+						elif(value.lower()=="mutated"):
+							myvalue={}
+	#							myvalue['code']="at0004"
+							myvalue['value']="Present"
+	#							myvalue['terminology']="local"
+							myvalue["code"]="[LOINC(2.65)::LA9633-4]"
+							myvalue["terminology"]="LOINC"
+							value=myvalue
 
-				#fix kras and nras mapping
-				if( ( "nras" in ll.get_id() ) or ("kras" in ll.get_id() ) ):
-					if(value.lower()=="not done"):
-						myvalue={}
-#							myvalue['code']="at0007"
-						myvalue['value']="Indeterminate"
-#							myvalue['terminology']="local"
-						myvalue["code"]="[LOINC(2.65)::LA11884-6]"
-						myvalue["terminology"]="LOINC"
-						value=myvalue
-					elif (value.lower()=="not mutated"):
-						myvalue={}
-#							myvalue['code']="at0005"
-						myvalue['value']="Absent"
-#							myvalue['terminology']="local"
-						myvalue["code"]="[LOINC(2.65)::LA9634-2]"
-						myvalue["terminology"]="LOINC"
-						value=myvalue
-					elif(value.lower()=="mutated"):
-						myvalue={}
-#							myvalue['code']="at0004"
-						myvalue['value']="Present"
-#							myvalue['terminology']="local"
-						myvalue["code"]="[LOINC(2.65)::LA9633-4]"
-						myvalue["terminology"]="LOINC"
-						value=myvalue
-
-				logging.debug(f"BAR {ll.get_id()} {value}")
-				listofActualLeafs.append(ActualLeaf(ll,value,f))
-				nelem=nelem+1
+					logging.debug(f"BAR i {ll.get_id()} {value}")
+					if(i>0):
+						lltemp=ll
+						tpath=ll.get_path()
+						lastocc=tpath.rfind(":0")
+						logging.debug(f"KK: tpath,lastocc,tpath[lastocc] {tpath} {lastocc} {tpath[lastocc]}")
+						#works till i=9
+						if(lastocc != -1):
+							npath=tpath[0:lastocc+1]+str(i)+tpath[lastocc+2:]
+						logging.debug(f"KK: tpath, {npath} ")
+						lltemp.set_path(npath)
+						listofActualLeafs.append(ActualLeaf(lltemp,value,f))
+					else:
+						listofActualLeafs.append(ActualLeaf(ll,value,f))
+						nelem=nelem+1
 		else:
 			#if language,territory,composer,category,encoding and ism_transition fill it with default values
 			#subject are ignored unless mapped

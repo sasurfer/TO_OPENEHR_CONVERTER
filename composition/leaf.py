@@ -54,6 +54,10 @@ class Leaf:
 		return self.id,self.name,self.path,self.rmtype, \
 		self.cardinality_min,self.cardinality_max,self.acceptable_values,self.annotation
 	
+	def set_path(self,path):
+		self.path=path
+
+
 
 class ActualLeaf(Leaf):
 	def __init__(self,leaf,data,positioninXML):
@@ -129,6 +133,7 @@ class ActualLeaf(Leaf):
 			logging.debug(f'rmtype not implemented yet {self.rmtype}')
 
 	def createandcorrecttotalpath(self,listofoccurrences):
+		'''search for a given path section and change it with the right occurence'''
 		#in occurrences occurrence,position,label,path
 		logging.debug(f"NNNNNNNNNNNNNNNN {self.get_id()}")
 		self.totalpath=self.rmobject.get_path()
@@ -148,7 +153,7 @@ class ActualLeaf(Leaf):
 			else:
 				break
 			#extract words,position of 0 before :0
-		logging.debug(myoc)
+		logging.debug(f'myoc {myoc}')
 		found=0
 		listofindex=[]
 		while found != -1:
@@ -162,16 +167,31 @@ class ActualLeaf(Leaf):
 				listofindex.append([found,name])
 		logging.debug(f' listofindex {listofindex} ')
 		#now we correct
+		#newtotalpath={}
+		listofchanges=[]
 		for k,v in self.totalpath.items():
+			myk=k
+			kfound=0
 			for koc in myoc:
 				if (koc in k):
-					newk=k[0:len(koc)-1]+str(myoc[koc])+k[len(koc):]
+					newk=myk[0:len(koc)-1]+str(myoc[koc])+myk[len(koc):]
 					value=v
 					logging.debug(f'k,newk {k} {newk}')
-					del self.totalpath[k]
-					self.totalpath[newk]=value
-					#k[len(koc)-2:len(koc)-1]=str(myoc[koc])
-		
+					kfound+=1
+					myk=newk
+			if(kfound>0):
+				listofchanges.append([k,myk,value])
+
+		for [kold,knew,value] in listofchanges:
+			del self.totalpath[kold]
+			self.totalpath[knew]=value
+			logging.debug(f'FINAL k,newk,value {kold} {knew} {value}')
+				#newtotalpath[myk]=value
+				#k[len(koc)-2:len(koc)-1]=str(myoc[koc])
+
+#		for k,v in newtotalpath.items():
+#			self.totalpath[k]=v
+	
 		return self.totalpath
 
 class NoLeaf(Leaf):

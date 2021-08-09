@@ -7,11 +7,6 @@ from composition.leaf import ActualLeaf,ActualNoLeaf
 
 def mefinder(myleaf,listofitems):
 	annotation=myleaf.get_annotation()
-#	if (myleaf.get_id()=='date_of_start_of_targeted_therapy'):
-#		print("*********************")
-#		print("--------------------")
-#		print(myleaf.get_annotation())
-#		print(myleaf.get_annotation()['XSD label'])
 	indexes=[]
 	if ('XSD label' in annotation):
 		logging.debug(f"looking for {annotation['XSD label']}")
@@ -29,11 +24,6 @@ def remove_ns(tag,ns):
 
 def meventfinder(myleaf,listofitems):
 	annotation=myleaf.get_annotation()
-#	if (myleaf.get_id()=='date_of_start_of_targeted_therapy'):
-#		print("*********************")
-#		print("--------------------")
-#		print(myleaf.get_annotation())
-#		print(myleaf.get_annotation()['XSD label'])
 	indexes=[]
 	if ('XSD label' in annotation):
 #		logging.debug(f"looking for {annotation['XSD label']}")
@@ -49,6 +39,7 @@ def meventfinder(myleaf,listofitems):
 
 
 def mtimefinder(annotation,listofitems):
+	#null flavour if unknown
 	time="10/12/2008"
 	logging.debug(f"TIME: listofitems {listofitems}")
 	logging.debug(f"TIME: {annotation}")
@@ -82,7 +73,7 @@ def fill_default_items_crc(ll,listofActualLeafs,listofNodes,defaultLanguage,all_
 		return True
 	elif(ll.get_id()=="composer" and ll.get_path().count('/')==2):
 		composer={}
-		composer['name']='Unknown'
+		composer['name']='EOSC-Life_WP1-DEM'
 		listofActualLeafs.append(ActualLeaf(ll,composer,0))
 		return True
 	elif(ll.get_id()=="territory" and ll.get_path().count('/')==2):
@@ -178,10 +169,10 @@ def fill_default_items_crc(ll,listofActualLeafs,listofNodes,defaultLanguage,all_
 			starttime="2021-05-25T15:48:35.35Z"
 			listofActualLeafs.append(ActualLeaf(ll,starttime,0))
 			return True
-	elif(ll.get_id()=="date_of_end_of_radiation_therapy"):
-		dert="P15W"
-		closestposition=findclosestActual(listofActualLeafs,ll.get_path())
-		listofActualLeafs.append(ActualLeaf(ll,dert,closestposition))	
-		return True
+#	elif(ll.get_id()=="date_of_end_of_radiation_therapy"):
+#		dert="P15W"
+#		closestposition=findclosestActual(listofActualLeafs,ll.get_path())
+#		listofActualLeafs.append(ActualLeaf(ll,dert,closestposition))	
+#		return True
 	else:
 		return False

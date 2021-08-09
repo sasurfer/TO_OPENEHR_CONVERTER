@@ -1,3 +1,4 @@
 conversion.log
-output_0.json
-
+output_*.json
+*.pyo 
+*.pyc
