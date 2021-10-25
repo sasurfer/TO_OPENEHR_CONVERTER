@@ -2,3 +2,5 @@ conversion.log
 output_*.json
 *.pyo 
 *.pyc
+TEMP/
+RESULTS/

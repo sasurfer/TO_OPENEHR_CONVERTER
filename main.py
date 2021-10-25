@@ -1,5 +1,9 @@
 #!/usr/bin/python3
-'''convert given format to_openehr compositions'''
+'''convert given format to_openehr compositions
+Implemented XML --> openEHR
+Results in Results directory
+Logs in conversion.log
+'''
 import json
 import logging
 from webtemplate.webtemplate_reader import read_wt
@@ -7,10 +11,13 @@ from webtemplate.webtemplate_parser import parse_wt
 from crc_cohort.xml_parser import find_ns
 from composition.occurrences import FindOccurencesFromNoLeafs
 from composition.composition import Composition
-from composition.utils import readinput,retrieve_all_items_patient,check_missing_leafs,create_actual_leafs,create_actual_noleafs
+from composition.utils import readinput,retrieve_all_items_patient,check_missing_leafs,create_actual_leafs
+from composition.utils import create_actual_noleafs,complete_actual_leafs
 import argparse
 import config
-
+import copy
+import os
+import sys
 
 def main():
 	parser = argparse.ArgumentParser()
@@ -19,10 +26,11 @@ def main():
 	parser.add_argument('--inputfile',help='input filename',default='input')
 	parser.add_argument('--webtemplate',help='template target in simple template format',default='webtemplate')
 #    parser.add_argument('--pathfile',help='file with the paths to the phenopackets',type=str)
-#    parser.add_argument('--check',action='store_true', help='4 debugging: check the composition obtained against a target')
+	parser.add_argument('--check',action='store_true', help='check the missing leafs for leafs that should be there but are not')
 
 	parser.add_argument('--outputfilebasename',help='output file basename',default='output')
 	args=parser.parse_args()
+
 
 	loglevel=getattr(logging, args.loglevel.upper(),logging.WARNING)
 	if not isinstance(loglevel, int):
@@ -34,6 +42,13 @@ def main():
 	webtemplate=args.webtemplate
 	outputfilebasename=args.outputfilebasename
 
+	directory=os.path.dirname(os.path.realpath(__file__))
+	directory=directory+'/RESULTS/'
+	if not os.path.exists(directory):
+		os.makedirs(directory)
+	outputfilebasename=directory+outputfilebasename
+
+
 	if(args.convertfrom == "bbmrixml"):
 		config.fr=1
 	elif(args.convertfrom== "phenopacketV2"):
@@ -42,6 +57,11 @@ def main():
 		print(f"Error: 'convertfrom' parameter must be chosen from the parameter values range")
 		exit(1)		
 
+	check=False
+	if args.check:
+		check=True
+		print ('Check is set to true')
+		logging.info('Check is set to true')
 
 	# READ AND PARSE WEBTEMPLATE
 	#webtemplate="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/TMP/WebTemplatecrc_cohort_dazipMOD.json"
@@ -50,17 +70,17 @@ def main():
 	logging.info(json.dumps(myjson, indent = 4, sort_keys=True))
 
 	#create leafs, noleafs(4 molteplicity) and nodes
-	listofleafs,listofnoleafs,listofNodes=parse_wt(myjson)
+	listofleafsorig,listofnoleafsorig,listofNodes=parse_wt(myjson)
 
 	logging.debug("Leafs")
-	logging.debug(f"number of leafs={len(listofleafs)}")
-	for ll in listofleafs:
+	logging.debug(f"number of leafs={len(listofleafsorig)}")
+	for ll in listofleafsorig:
 		logging.debug(f"leaf {ll.get_all()}")
 
 	logging.debug("********************************************")
 	logging.debug("No leafs annotated")
-	logging.debug(f"number of no leaf annotated={len(listofnoleafs)}")
-	for nl in listofnoleafs:
+	logging.debug(f"number of no leaf annotated={len(listofnoleafsorig)}")
+	for nl in listofnoleafsorig:
 		logging.debug(f"no leaf annotated {nl.get_id()} {nl.get_annotation()}{nl.get_path()}")
 	logging.debug("********************************************")	
 
@@ -70,7 +90,6 @@ def main():
 
 
 	# READ AND PARSE INPUTFILE
-	#inputfile="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/TMP/import_exampleMOD.xml"
 	listofpatients=readinput(inputfile)
 
 	#NAMESPACE (for xml)
@@ -81,29 +100,43 @@ def main():
 
 	#LOOP OVER PATIENTS
 	for i in range(len(listofpatients)):
-#		bhp=listofpatients[i]
+		listofleafs=copy.deepcopy(listofleafsorig)
+		listofnoleafs=copy.deepcopy(listofnoleafsorig)
+
 		p_i=listofpatients[i]
-		outputfile=outputfilebasename+"_"+str(i+1)+".json"
 		all_items_patient_i=retrieve_all_items_patient(p_i,ns)
 #		all_items_bh=(all_items(bhp,ns))
 		logging.debug(f'all items for patient {i+1}')
 		logging.debug(all_items_patient_i)
 		logging.debug("********************************************")
 
+		patientid=all_items_patient_i[1][1]
+
+		print(f'*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
+		logging.info(f'*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
+
+		outputfile=outputfilebasename+"_"+str(i+1)+"_id_"+patientid+".json"
+
 		# CREATE AN ACTUALLEAF FOR EACH LEAF WHOSE MAPPING IS INSTANCIATED IN THE INPUT FILE
 		# PLUS FILL WITH DEFAULT VALUES
 		listofActualLeafs=[]
 		listofNoActualLeafs=[]
-		create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listofNoActualLeafs,listofNodes,defaultLanguage)
-
-		#THIS SUBROUTINE IS ONLY TO LOOK FOR LEAFS THAT SHOULD HAVE BEEN INSTANTIATED!!!!
-		check_missing_leafs(listofNoActualLeafs,listofActualLeafs,listofNodes)
+		create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listofNodes,defaultLanguage)
 
 		# CREATE AN ACTUALNOLEAF FOR EACH NOLEAF THAT IS ANNOTATED AND WHOSE MAPPING IS INSTANCIATED IN THE INPUT FILE
 		# this is necessary to treat nodes molteplicity 
 		listofActualNoleafs=[]	
-		create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)	
+		create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)
 
+		#CREATE REMAINING REQUIRED ACTUAL LEAFS WHEN MISSING FROM THE XML FILE WITH A DEFAULT OR SPECIFIED VALUE
+		complete_actual_leafs(listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
+
+
+		if(check):
+			#THIS SUBROUTINE IS ONLY TO LOOK FOR LEAFS THAT SHOULD HAVE BEEN INSTANTIATED!!!!
+			check_missing_leafs(listofleafs,listofActualLeafs,listofNodes)
+
+		logging.debug(f'TOTAL LIST OF ACTUAL LEAFS')
 		for ll in listofActualLeafs:
 			logging.debug(f'listofActualleafs {ll.get_id()} {ll.get_path()}')
 
@@ -129,4 +162,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+	main()

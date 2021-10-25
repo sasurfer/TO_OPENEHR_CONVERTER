@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 '''find occurrences tree from a given list of noleafs'''
+import logging
 
 def FindOccurencesFromNoLeafs(listofnoleafs):
 	'''return occurrence number for each leaf associated with its position on the xml and the XSD label'''
@@ -19,6 +20,7 @@ def FindOccurencesFromNoLeafs(listofnoleafs):
 		prevlabel=listofnoleafs[0].get_id()
 #		print("AAA")
 		listofnamepath.append([prevname,prevpathlen,prevnumber,position,prevlabel,prevpath])
+		logging.debug(f'listofnamepath {prevname},{prevpathlen},{prevnumber},{position},{prevlabel},{prevpath}')
 
 		for l in listofnoleafs[1:]:
 #			print(l)
@@ -30,11 +32,14 @@ def FindOccurencesFromNoLeafs(listofnoleafs):
 			#label=l.get_annotation()['XSD label']
 			label=l.get_id()
 			listofnamepath.append([name,pathlen,number,position,label,path])
+			logging.debug(f'listofnamepath {name},{pathlen},{number},{position},{label},{path}')
 			prevname=name
 			prevpath=path
 			prevpathlen=pathlen
 			prevnumber=number
 			prevlabel=label
+		listofnamepath.sort(key = lambda x: x[3])
+
 		return [[i[2],i[3],i[4],i[5]] for i in listofnamepath]
 
 

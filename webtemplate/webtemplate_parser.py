@@ -61,8 +61,12 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 			path=path+'/'+root['id']+':0'
 			if 'annotations' in root:
 				annotations=root['annotations']
-				if 'XSD label' in annotations:
-					annotations['XSD label']=annotations['XSD label'].strip()
+				result=[iii for iii in annotations if iii.startswith('XSD label')]
+				if (result):
+					annotations['XSD label']=annotations[result[0]].strip()
+#		
+#				if 'XSD label' in annotations:
+#					annotations['XSD label']=annotations['XSD label'].strip()
 			else:
 				annotations='Not mapped'
 			if 'name' not in root:
@@ -77,8 +81,11 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 			path=path+'/'+root['id']
 			if 'annotations' in root:
 				annotations=root['annotations']
-				if 'XSD label' in annotations:
-					annotations['XSD label']=annotations['XSD label'].strip()
+				result=[iii for iii in annotations if iii.startswith('XSD label')]
+				if (result):
+					annotations['XSD label']=annotations[result[0]].strip()
+#				if 'XSD label' in annotations:
+#					annotations['XSD label']=annotations['XSD label'].strip()
 			else:
 				annotations='Not mapped'			
 			pluto=Node(root['id'],path,root['min'],root['max'],annotations)
@@ -97,8 +104,12 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 			inputs=[]
 		if 'annotations' in root:
 			annotations=root['annotations']
-			if 'XSD label' in annotations:
-				annotations['XSD label']=annotations['XSD label'].strip()
+			result=[iii for iii in annotations if iii.startswith('XSD label')]
+			if (result):
+				annotations['XSD label']=annotations[result[0]].strip()
+#				
+#			if 'XSD label' in annotations:
+#				annotations['XSD label']=annotations['XSD label'].strip()
 		else:
 			annotations='Not mapped'
 

@@ -86,6 +86,7 @@ class ActualLeaf(Leaf):
 
 	def instantiate_data(self):
 		'''instantiate  according to rmtype'''
+		#TODO FIX NULL VALUE!!!!!
 		if(self.rmtype=='DV_TEXT'):
 			self.rmobject=DV_TEXT(self.path,self.data)
 		elif(self.rmtype=="DV_CODED_TEXT" ):
@@ -136,6 +137,7 @@ class ActualLeaf(Leaf):
 		'''search for a given path section and change it with the right occurence'''
 		#in occurrences occurrence,position,label,path
 		logging.debug(f"NNNNNNNNNNNNNNNN {self.get_id()}")
+		logging.debug(f'occurrences={listofoccurrences}')
 		self.totalpath=self.rmobject.get_path()
 		logging.debug(f"totalpath {self.totalpath}")
 		#get keys. each key is a path
@@ -144,6 +146,7 @@ class ActualLeaf(Leaf):
 		#each path has the same position and word so I'll do it once
 		logging.debug("AAAAAAAAAAAAAAAAAAAAAAAAAA")
 		logging.debug(k)
+		logging.debug(f'self.positioninXML={self.positioninXML}')
 		myoc={}
 		for i,(oc,pos,label,path) in enumerate(listofoccurrences):
 			logging.debug(f'i {i},oc {oc}, pos {pos}, label {label}, path {path}')
@@ -169,6 +172,8 @@ class ActualLeaf(Leaf):
 		#now we correct
 		#newtotalpath={}
 		listofchanges=[]
+		logging.debug(f'self.totalpath={self.totalpath}')
+		logging.debug(f'myoc={myoc}')
 		for k,v in self.totalpath.items():
 			myk=k
 			kfound=0

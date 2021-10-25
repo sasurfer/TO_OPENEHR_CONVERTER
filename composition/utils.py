@@ -3,9 +3,11 @@
 from rm.rmclasses import CODE_PHRASE 
 import logging
 import config
+import sys
 from crc_cohort.xml_parser import parse_xml
-from crc_cohort.mapped_element_finder import mefinder,all_items,fill_default_items_crc
-from crc_cohort.mapped_element_finder import meventfinder,mtimefinder
+from crc_cohort.mapped_element_finder import mefinder,all_items,fill_default_items_crc,meventfinder,mtimefinder  
+from crc_cohort.mapped_element_finder import complete_actual_leafs_crc,create_listofnoactualleafs_crc
+
 import re
 from composition.leaf import ActualLeaf,ActualNoLeaf
 
@@ -43,6 +45,13 @@ def findclosestPath(listofActualLeafs,path):
 	return maxnumber,maxpath,maxpathorigin
 
 
+def findExactPath(listofleafs,path):
+	'''find path closest to the one given from the list of all Leafs'''
+	for ll in listofleafs:
+		if(ll.get_path()==path):
+			return ll
+	sys.exit(f'error can\'t find {path}' )
+
 def readinput(inputfile):
 	if(config.fr==1):
 		return parse_xml(inputfile)
@@ -72,7 +81,12 @@ def get_value(all_items_patient_i,f):
 		values=[]
 		logging.debug(f"BARA {all_items_patient_i[f]}")
 		value=all_items_patient_i[f][1]
-		valuestripped=re.sub(r"[\n\t\s]*", "", value)
+		try:
+			valuestripped=re.sub(r"[\n\t\s]*", "", value)
+		except TypeError as t:
+			logging.info(f'typeerror {t} in position {f}')
+			values.append("Null Value")
+			return values
 		if(valuestripped==""):
 			#look for values
 			somevalue=True
@@ -95,19 +109,10 @@ def get_value(all_items_patient_i,f):
 		print("Not yet implemented")
 		exit(0)
 
-def fill_default_items(ll,listofActualLeafs,listofNodes,defaultLanguage,all_items_patient_i):
-	if(config.fr==1):
-		return fill_default_items_crc(ll,listofActualLeafs,listofNodes,defaultLanguage,all_items_patient_i)
-	elif(config.fr==2):
-		print("Not yet implemented")
-		exit(0)		
-		#return fill_default_items_pheno(ll,listofActualLeafs,listofNodes,defaultLanguage)
 
-
-def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listofNoActualLeafs,listofNodes,defaultLanguage):
+def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listofNodes,defaultLanguage):
 	nelem=0
 	xelem=0
-	xelemNC=0
 	flist=[]
 	for (indexleaf,ll) in enumerate(listofleafs):
 		logging.debug(f'leaf ids: {ll.get_id()}')
@@ -127,6 +132,7 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 
 				#if all_items_bh[f][1] not empty then that's the value
 				values=get_value(all_items_patient_i,f)
+				logging.debug(f'VALUES values={values} len(values)={len(values)}')
 				for i,value in enumerate(values):
 					#fix kras and nras mapping
 					if( ( "nras" in ll.get_id() ) or ("kras" in ll.get_id() ) ):
@@ -155,7 +161,45 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 							myvalue["terminology"]="LOINC"
 							value=myvalue
 
-					logging.debug(f"BAR i {ll.get_id()} {value}")
+					elif(ll.get_id()=='sample_id'):
+						myvalue={}
+						myvalue['id']=value
+						value=myvalue
+					elif(ll.get_id()=='morphology'):
+						#high-grade neuroendocrine carcinoma,Other,Mucinous carcinoma NOT MAPPED
+
+						#maps "Serrated adenocarcinoma" to "Adenocarcinoma, serrated type"
+						if (value=='Serrated adenocarcinoma'):
+							value="Adenocarcinoma, serrated type"
+						#maps "Adeonsquamous carcinoma" to "Adenosquamous carcinoma"
+						elif(value=='Adeonsquamous carcinoma'):
+							value='Adenosquamous carcinoma'
+						#maps "Large cell neuroendocrine carcinoma" to "Neuroendocrine carcinoma, large cell"	
+						elif(value=='Large cell neuroendocrine carcinoma'):
+							value='Neuroendocrine carcinoma, large cell'
+
+						myvalue={}
+						mylist=ll.get_acceptable_values()[0]['list']
+						mylistlabels=[i["label"].lower() for i in mylist]
+						if(value.lower().replace('-'," ") not in mylistlabels):
+							print(f'error in morphology mapping! unmapped label={value}')
+							logging.info(f'error in morphology mapping! unmapped label={value}')
+							#take the first one for sake of continuity
+							myvalue['value']=mylist[0]['label']
+							myvalue['code']=mylist[0]['value']
+							myvalue['terminology']='local'	
+							value=myvalue						
+						else:
+							for m in mylist:
+								if(m['label'].lower() == value.lower().replace('-',' ')):
+									myvalue['value']=m['label']
+									myvalue['code']=m['value']
+									myvalue['terminology']='local'
+									value=myvalue
+									break
+
+
+					logging.debug(f"BAR i={i} llid={ll.get_id()} value={value}")
 					if(i>0):
 						lltemp=ll
 						tpath=ll.get_path()
@@ -164,41 +208,55 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 						#works till i=9
 						if(lastocc != -1):
 							npath=tpath[0:lastocc+1]+str(i)+tpath[lastocc+2:]
-						logging.debug(f"KK: tpath, {npath} ")
+							logging.debug(f"KK: tpath, {npath} ")
 						lltemp.set_path(npath)
 						listofActualLeafs.append(ActualLeaf(lltemp,value,f))
 					else:
 						listofActualLeafs.append(ActualLeaf(ll,value,f))
 						nelem=nelem+1
 		else:
-			#if language,territory,composer,category,encoding and ism_transition fill it with default values
-			#subject are ignored unless mapped
-			filled=fill_default_items(ll,listofActualLeafs,listofNodes,defaultLanguage,all_items_patient_i)
-			if(filled):
-				logging.info(f"SISTERACT {ll.get_path()}")
-				nelem=nelem+1
-			else:
-				listofNoActualLeafs.append(ll)
-				if(ll.is_compulsory()):
-					xelemNC+=1
-					logging.debug(f"NC:LEAF {ll.get_id()} not instantiated {ll.get_path()} but min,max {ll.get_cardinality()}")
-				xelem=xelem+1	
+			xelem+=1				
+
+
 	print(f'{nelem} mapped leafs found')
 	logging.info(f'{nelem} mapped leafs found')
 	print(f'{xelem} leafs not found in input')
 	logging.info(f'{xelem} leafs not found in input')
-	logging.info(f'{xelemNC} should be instantiated (according only to leafs)')
+#	logging.info(f'{xelemNC} should be instantiated (according only to leafs)')
 
 
-def check_missing_leafs(listofNoActualLeafs,listofActualLeafs,listofNodes):
+def complete_actual_leafs(listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs):
+	'''add default values taken from the template or not to the compulsory fields not fillable with the input data'''
+	if(config.fr==1):
+		return complete_actual_leafs_crc(listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
+	elif(config.fr==2):
+		print("Not yet implemented")
+		exit(0)		
+
+def create_listofnoactualleafs(listofActualLeafs,listofleafs):
+	'''add default values taken from the template or not to the compulsory fields not fillable with the input data'''
+	if(config.fr==1):
+		return create_listofnoactualleafs_crc(listofActualLeafs,listofleafs)
+	elif(config.fr==2):
+		print("Not yet implemented")
+		exit(0)		
+
+
+
+def check_missing_leafs(listofleafs,listofActualLeafs,listofNodes):
+
+	listofNoActualLeafs=create_listofnoactualleafs(listofActualLeafs,listofleafs)
 	xelemC=0
 	xelemFixable=0
+	xelemcard=0
+
 	for ll in listofNoActualLeafs:
 
 #now find what elements are compulsory GIVEN the actual leafs are filled
 #each part of the path of an actual leaf becomes True to compulsory
 				#find the actualleaf closer to the non-leaf
 		if (ll.get_cardinality()[0]==0):
+			xelemcard+=1
 			continue
 		path=ll.get_path()
 		maxnumber,maxpath,maxpathorigin=findclosestPath(listofActualLeafs,path)
@@ -211,7 +269,6 @@ def check_missing_leafs(listofNoActualLeafs,listofActualLeafs,listofNodes):
 		totalslashes=path.count('/')
 		if(slashes==0):
 			xelemC+=1
-#				if(ll.get_id()=="subject" or ll.get_id()=="ism_transition"):
 			if(ll.get_id()=="subject"):
 				xelemFixable+=1
 			else:
@@ -242,7 +299,11 @@ def check_missing_leafs(listofNoActualLeafs,listofActualLeafs,listofNodes):
 				if(ll.get_id()=="subject"):
 					xelemFixable+=1
 				else:
-					logging.debug(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")	
+					logging.debug(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")
+			else:
+				xelemcard+=1
+	print(f'{xelemcard} elements not compulsory (zero cardinality)')
+	logging.info(f'{xelemcard} elements not compulsory (zero cardinality)')				
 	print(f'{xelemFixable}/{xelemC} can be reasonably omitted')
 	logging.info(f'{xelemFixable}/{xelemC} can be reasonably omitted')
 
@@ -252,12 +313,11 @@ def create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)
 	noflist=[]
 	for (indexnoleaf,ll) in enumerate(listofnoleafs):
 		logging.debug("********************************************")
-		logging.debug(f'noleaf ids: {ll.get_id()}')
+		logging.debug(f'noleaf ids: id={ll.get_id()} path={ll.get_path()}')
 		noflist=meventfinder(ll,all_items_patient_i)
 		if len(noflist) > 0:
 			for f in noflist:
-				logging.debug("********************************************")
-				logging.debug('index in bh items {f}, {element all_items_patient_i[f]}')
+				logging.debug(f'Added index in bh items {f}, element={all_items_patient_i[f]}')
 				listofActualNoleafs.append(ActualNoLeaf(ll,f))
 				nnelem=nnelem+1
 		else:
