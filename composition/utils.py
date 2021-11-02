@@ -85,6 +85,8 @@ def get_value(all_items_patient_i,f):
 			valuestripped=re.sub(r"[\n\t\s]*", "", value)
 		except TypeError as t:
 			logging.info(f'typeerror {t} in position {f}')
+			logging.info(f'null value inserted')
+			logging.info(f'element: {all_items_patient_i[f]}')
 			values.append("Null Value")
 			return values
 		if(valuestripped==""):
@@ -120,7 +122,7 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 #			flist=mefinder(ll,all_items_bh)
 
 		if(len(flist)>0):
-			logging.info(f"SISTERACT {ll.get_path()}  {len(flist)}")
+			logging.debug(f"SISTERACT {ll.get_path()}  {len(flist)}")
 
 		if len(flist) >0 :
 			for f in flist:
@@ -243,7 +245,7 @@ def create_listofnoactualleafs(listofActualLeafs,listofleafs):
 
 
 
-def check_missing_leafs(listofleafs,listofActualLeafs,listofNodes):
+def check_missing_leafs(patid,listofleafs,listofActualLeafs,listofNodes):
 
 	listofNoActualLeafs=create_listofnoactualleafs(listofActualLeafs,listofleafs)
 	xelemC=0
@@ -272,7 +274,7 @@ def check_missing_leafs(listofleafs,listofActualLeafs,listofNodes):
 			if(ll.get_id()=="subject"):
 				xelemFixable+=1
 			else:
-				logging.debug(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")
+				logging.warning(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")
 
 		else:
 			st=maxnumber+1
@@ -299,13 +301,24 @@ def check_missing_leafs(listofleafs,listofActualLeafs,listofNodes):
 				if(ll.get_id()=="subject"):
 					xelemFixable+=1
 				else:
-					logging.debug(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")
+					logging.warning(f"LEAF NOT INSTANTIATED {ll.get_id()} {ll.get_path()}")
 			else:
 				xelemcard+=1
 	print(f'{xelemcard} elements not compulsory (zero cardinality)')
 	logging.info(f'{xelemcard} elements not compulsory (zero cardinality)')				
 	print(f'{xelemFixable}/{xelemC} can be reasonably omitted')
 	logging.info(f'{xelemFixable}/{xelemC} can be reasonably omitted')
+	if(xelemFixable<xelemC):
+		print(f'WARNING: Patient {patid} ')
+		print(f'{xelemC} elements not present')
+		print(f'{xelemFixable} elements fixable')
+		print(f'{xelemC-xelemFixable} elements not omittable')
+		logging.warning(f'WARNING: Patient {patid} ')
+		print(f'{xelemC} elements not present')
+		print(f'{xelemFixable} elements fixable')		
+		logging.warning(f'{xelemC-xelemFixable} elements not omittable')
+
+
 
 def create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs):
 	nnelem=0

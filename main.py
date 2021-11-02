@@ -134,7 +134,7 @@ def main():
 
 		if(check):
 			#THIS SUBROUTINE IS ONLY TO LOOK FOR LEAFS THAT SHOULD HAVE BEEN INSTANTIATED!!!!
-			check_missing_leafs(listofleafs,listofActualLeafs,listofNodes)
+			check_missing_leafs(i+1,listofleafs,listofActualLeafs,listofNodes)
 
 		logging.debug(f'TOTAL LIST OF ACTUAL LEAFS')
 		for ll in listofActualLeafs:
