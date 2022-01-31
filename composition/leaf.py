@@ -60,7 +60,7 @@ class Leaf:
 
 
 class ActualLeaf(Leaf):
-	def __init__(self,leaf,data,positioninXML):
+	def __init__(self,leaf,data,positioninXML,isnull=False):
 		myid=leaf.get_id()
 		name=leaf.get_name()
 		path=leaf.get_path()
@@ -74,20 +74,36 @@ class ActualLeaf(Leaf):
 		cardinality_max,acceptable_values,comp,annotation)
 		self.positioninXML=positioninXML
 		self.data=data
+		self.isnull=isnull
 		self.instantiate_data()
+
 		logging.debug(f"INSTANT: {self.path} {self.pathnoid} {self.data}")
+
+	def setnull(self,boolvalue):
+		self.isnull=boolvalue
+
+	def getnull(self):
+		return self.isnull
 
 	def get_positioninXML(self):
 		return self.positioninXML
+
+	def get_data(self):
+		return self.data
+
+	def set_data(self,data):
+		self.data=data
+		self.instantiate_data()
 
 	def get_all(self):
 		all=super_get_all()
 		return all,positioninXML
 
 	def instantiate_data(self):
-		'''instantiate  according to rmtype'''
-		#TODO FIX NULL VALUE!!!!!
-		if(self.rmtype=='DV_TEXT'):
+		'''instantiate  according to rmtype and null boolean'''
+		if self.isnull==True:
+			self.rmobject=DV_CODED_TEXT(self.path,self.data)
+		elif(self.rmtype=='DV_TEXT'):
 			self.rmobject=DV_TEXT(self.path,self.data)
 		elif(self.rmtype=="DV_CODED_TEXT" ):
 			self.rmobject=DV_CODED_TEXT(self.path,self.data)

@@ -1,6 +1,10 @@
-conversion.log
-output_*.json
+conversion.*
+*.json
 *.pyo 
 *.pyc
 TEMP/
 RESULTS/
+*.opt
+patient*
+*.log
+*.xml

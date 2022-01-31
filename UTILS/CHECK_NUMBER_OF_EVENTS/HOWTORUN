@@ -1,0 +1,7 @@
+with file 
+python3 ../CODE/checknumber_events.py --inputfile=../../../BBMRI_STUFF/Graz_update_fixed_rr_202011171945.xml 
+
+with file basename
+python3 ../CODE/checknumber_events.py --inputfilebasename=patientsFromDb --inputdir=.
+
+

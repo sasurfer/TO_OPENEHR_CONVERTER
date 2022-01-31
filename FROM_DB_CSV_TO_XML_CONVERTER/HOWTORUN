@@ -1,0 +1,2 @@
+python3 .FromDbCSVtoXML.py --loglevel=INFO --inputfile=../BBMRI_STUFF/CRC_COHORT/data-from-db-all-except2648.csv --baseoutputfile patientsFromDb
+

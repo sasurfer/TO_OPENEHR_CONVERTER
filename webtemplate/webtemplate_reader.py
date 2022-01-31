@@ -7,7 +7,7 @@ def read_wt(file):
 	with open(file) as f:
 		compositionjson = json.load(f)
 #		logging.debug(f'webtemplate from {file}:/n {json.dumps(compositionjson, indent = 4, sort_keys=True)}')
-	return compositionjson['tree'],compositionjson['defaultLanguage']
+	return compositionjson['tree'],compositionjson['defaultLanguage'],compositionjson['templateId']
 
 
 if __name__ == '__main__':

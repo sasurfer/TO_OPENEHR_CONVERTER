@@ -66,7 +66,7 @@ def main():
 	# READ AND PARSE WEBTEMPLATE
 	#webtemplate="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/TMP/WebTemplatecrc_cohort_dazipMOD.json"
 	#webtemplate="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/CRC_COHORT/crc_cohort_v2.json"
-	myjson,defaultLanguage=read_wt(webtemplate)
+	myjson,defaultLanguage,templateId=read_wt(webtemplate)
 	logging.info(json.dumps(myjson, indent = 4, sort_keys=True))
 
 	#create leafs, noleafs(4 molteplicity) and nodes
@@ -129,7 +129,7 @@ def main():
 		create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)
 
 		#CREATE REMAINING REQUIRED ACTUAL LEAFS WHEN MISSING FROM THE XML FILE WITH A DEFAULT OR SPECIFIED VALUE
-		complete_actual_leafs(listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
+		complete_actual_leafs(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
 
 
 		if(check):

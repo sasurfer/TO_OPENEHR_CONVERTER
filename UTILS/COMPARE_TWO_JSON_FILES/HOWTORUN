@@ -1,0 +1,1 @@
+python3 ./CompareTwoJsonFiles.py --inputfiles=filepath1,filepath2
