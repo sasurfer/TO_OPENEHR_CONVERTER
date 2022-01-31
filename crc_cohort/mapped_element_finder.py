@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import logging
 import copy
 from composition.leaf import ActualLeaf,ActualNoLeaf
+from datetime import datetime
 
 
 def mefinder(myleaf,listofitems):
@@ -1463,7 +1464,9 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	path='/'+templateId+'/context/start_time'
 	lnew=findExactPath(listofleafs,path)
 	logging.debug(f'start_time path nopathassoc path={path}')
-	starttime="9999-05-25T15:48:35.35Z"
+	now = datetime.now()
+	starttime = now.strftime("%Y-%m-%dT%H:%M:%S:%f")[:-4]+'Z'
+#	starttime="9999-05-25T15:48:35.35Z"
 	closestposition=0
 	lnewnew=copy.deepcopy(lnew)	
 	listofActualLeafs.append(ActualLeaf(lnewnew,starttime,closestposition,True))
