@@ -27,9 +27,15 @@ def main():
 	parser.add_argument('--webtemplate',help='template target in simple template format',default='webtemplate')
 #    parser.add_argument('--pathfile',help='file with the paths to the phenopackets',type=str)
 	parser.add_argument('--check',action='store_true', help='check the missing leafs for leafs that should be there but are not')
-
 	parser.add_argument('--outputfilebasename',help='output file basename',default='output')
+	parser.add_argument('--ehrbase',action='store_true', help='flag to override ehrbase multiple section bug')
 	args=parser.parse_args()
+
+	if(args.ehrbase):
+		config.ehrbase=1
+	else:
+		config.ehrbase=0
+
 
 
 	loglevel=getattr(logging, args.loglevel.upper(),logging.WARNING)

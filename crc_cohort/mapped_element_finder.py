@@ -5,6 +5,7 @@ import logging
 import copy
 from composition.leaf import ActualLeaf,ActualNoLeaf
 from datetime import datetime
+import config
 
 
 def mefinder(myleaf,listofitems):
@@ -91,14 +92,6 @@ def fill_in_default(path,ll,listofleafs):
 	lnewnew=copy.deepcopy(lnew)	
 	return ActualLeaf(lnewnew,defvalue,closestposition)
 
-# def fill_in_from_event(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'from event pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	fe=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,fe,closestposition)
 
 def fill_in_language(path,ll,listofleafs,defaultLanguage):
 	from composition.utils import findExactPath
@@ -126,15 +119,6 @@ def fill_in_time(path,shortpath,ll,listofNodes,all_items_patient_i,listofleafs):
 	return ActualLeaf(lnewnew,time,closestposition)	
 
 
-# def fill_in_procedure_name(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'procedure name pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)		
-# 	procedurename=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,procedurename,closestposition)
-
 def fill_in_diagnosis(path,ll,listofleafs):
 	from composition.utils import findExactPath
 	logging.debug(f'{ll.get_id()} pathassoc={ll.get_path()} path={path}')
@@ -145,79 +129,6 @@ def fill_in_diagnosis(path,ll,listofleafs):
 	pdg['terminology']=lnew.get_acceptable_values()[0]['terminology']	
 	lnewnew=copy.deepcopy(lnew)	
 	return ActualLeaf(lnewnew,pdg,0)
-
-# def fill_in_primary_diagnosis(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'{ll.get_id()} pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	pdg={}
-# 	pdg['value']=lnew.get_acceptable_values()[0]['list'][0]['label']
-# 	pdg['code']=lnew.get_acceptable_values()[0]['list'][0]['value']
-# 	pdg['terminology']=lnew.get_acceptable_values()[0]['terminology']	
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,pdg,0)
-
-# def fill_in_metastasis_diagnosis(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'metastatis diagnosis pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	mdg={}
-# 	mdg['value']=lnew.get_acceptable_values()[0]['list'][0]['label']
-# 	mdg['code']=lnew.get_acceptable_values()[0]['list'][0]['value']
-# 	mdg['terminology']=lnew.get_acceptable_values()[0]['terminology']	
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,mdg,0)
-
-
-# def fill_in_test_name(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'test name pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	testname=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,testname,closestposition)
-
-# def fill_in_problem_diagnosis_name(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'problem diagnosis name pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	pdnn={}
-# 	pdnn['value']=lnew.get_acceptable_values()[0]['list'][0]['label']
-# 	pdnn['code']=lnew.get_acceptable_values()[0]['list'][0]['value']
-# 	pdnn['terminology']=lnew.get_acceptable_values()[0]['terminology']	
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,pdnn,closestposition)
-
-# def fill_in_therapy(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'therapy pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	therapy=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,therapy,closestposition)		
-
-# def fill_in_variant_name(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'variant_name pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	vn=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,vn,closestposition)
-
-
-# def fill_in_health_risk(path,ll,listofleafs):
-# 	from composition.utils import findExactPath
-# 	logging.debug(f'health_risk pathassoc={ll.get_path()} path={path}')
-# 	lnew=findExactPath(listofleafs,path)
-# 	hr=lnew.get_acceptable_values()[0]["defaultValue"]
-# 	closestposition=ll.get_positioninXML()
-# 	lnewnew=copy.deepcopy(lnew)	
-# 	return ActualLeaf(lnewnew,hr,closestposition)
-
 
 
 
@@ -773,13 +684,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 			nelemn+=1						
 
-		elif(lid=="time_of_therapy_response"):#response timing
-			#from_event
-			path='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/from_event'
-			al=fill_in_default(path,ll,listofleafs)
-			listofActualLeafs.append(al)
-
-			nelemn+=1						
+		
 
 
 
@@ -872,6 +777,18 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	dsrt=[]
 	posdert=[]
 	posdsrt=[]
+#
+	dstt=[]
+	posdstt=[]
+#
+	patientid='NoId'
+#
+	bmfr=[]
+	posbmfr=[]
+	aifdi=[]
+	posaifdi=[]	
+#
+	aad=[]
 #
 	for ll in listofActualLeafs:
 		lid=ll.get_id()
@@ -989,6 +906,19 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		elif(lid=='date_of_start_of_radiation_therapy'):
 			dsrt.append(ll)
 			posdsrt.append(ll.get_positioninXML())
+		elif(lid=='date_of_start_of_targeted_therapy'):
+			dstt.append(ll)
+			posdstt.append(ll.get_positioninXML())
+		elif(lid=='patient_pseudonym'):
+			patientid=ll.get_data()
+		elif(lid=='biological_material_from_recurrence_available'):
+			bmfr.append(ll)
+			posbmfr.append(ll.get_positioninXML())
+		elif(lid=='availability_invasion_front_digital_imaging'):
+			aifdi.append(ll)
+			posaifdi.append(ll.get_positioninXML())
+		elif(lid=='age_at_diagnosis'):
+			aad.append(ll)
 
 	logging.debug(f'LIST LEN')
 	logging.debug(f'scheme_of_pharmacotherapy len={len(posls)}')
@@ -1028,6 +958,9 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	logging.debug(f'kras_exon_4_codons_117_or_146  len={len(posnras4)}')
 	logging.debug(f'date_of_start_of_radiation_therapy  len={len(posdsrt)}')
 	logging.debug(f'date_of_end_of_radiation_therapy  len={len(posdert)}')
+	logging.debug(f'date_of_start_of_targeted_therapy  len={len(posdstt)}')
+	logging.debug(f'biological_material_from_recurrence_available len={len(posbmfr)}')
+	logging.debug(f'availability_invasion_front_digital_imaging  len={len(posaifdi)}')
 
 	#FIX when we have date_of_end_of_radiation_therapy but we don't have date_of_start_of_radiation_thearapy
 	if(len(dsrt) < len(dert)):#missing date_of_start_of_radiation_therapy
@@ -1045,14 +978,23 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	
 	#FIX when we have time_of_therapy_response but we don't have specific_response
 	if(len(sresp) < len(ttr)):#missing specific_response
-		print('fiuuuuuuuuuuuuuuuu')
+		# print('fiuuuuuuuuuuuuuuuu')
+		# print(f'22568- len(ttr)={len(ttr)} len(sresp)={len(sresp)}')
 		idis='time_of_therapy_response'
 		idmissing='specific_response'
 		pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/specific_response'
 		other_paths=[['encoding','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/encoding'],\
 		['language','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/language']]
 		nadd=fix_too_many_missing(idis,idmissing,ttr,sresp,posttr,possresp,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+		print(f'22568- len(ttr)={len(ttr)} len(sresp)={len(sresp)}')
 		nelemn+=nadd
+		# for i in range(len(sresp)):
+		# 	ltemp=sresp[i]
+		# 	ptemp=possresp[i]
+		# 	print(f'specific response path={ltemp.get_path()}  position={ptemp}' )
+		# 	ltemp=ttr[i]
+		# 	ptemp=posttr[i]
+		# 	print(f'time_of_therapy_response path={ltemp.get_path()}  position={ptemp}' )	
 
 	#FIX when we have specific_response but we don't have time_of_therapy_response
 	if(len(ttr) < len(sresp)):#missing ttr
@@ -1062,6 +1004,14 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		nadd=fix_too_many_missing(idis,idmissing,sresp,ttr,possresp,posttr,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd	
 
+	#FILL when we (finally) have specific_response
+	if(len(sresp)>0):
+		for ll in sresp:
+			#from_event
+			path='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/from_event'
+			al=fill_in_default(path,ll,listofleafs)
+			listofActualLeafs.append(al)
+			nelemn+=1							
 
 	#FIX when we have nras but not kras
 	if(len(kras2) < len(nras2)):#missing kras2
@@ -1102,6 +1052,15 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		nadd=fix_too_many_missing(idis,idmissing,tlevs,osurvs,postlevs,pososurvs,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd	
 
+	#FIX WHEN WE HAVE vital_status but we don't have overall_survival_status
+	if(len(osurvs) < len(vitstat)):#missing overall_survival_status
+		idis='vital_status'
+		idmissing='overall_survival_status'
+		pathmissing='/'+templateId+'/vital_status_and_survival_information/vital_status_and_survival_information/vital_status_timing/overall_survival_status/overall_survival_status'
+		nadd=fix_too_many_missing(idis,idmissing,vitstat,osurvs,posvitstat,pososurvs,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+		nelemn+=nadd	
+
+
 	#FIX WHEN WE HAVE overall_survival_status but we don't have vital_status
 	if(len(vitstat) < len(osurvs)):#missing overall_survival_status
 		idis='overall_survival_status'
@@ -1123,6 +1082,8 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		al=fill_in_language(path,ll,listofleafs,defaultLanguage)
 		listofActualLeafs.append(al)
 
+		nelemn+=2
+
 	#FILL WHEN we (finally) have overall_survival_status
 	if(len(osurvs)>0):
 		ll=osurvs[0]
@@ -1131,7 +1092,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		al=fill_in_default(path,ll,listofleafs)
 		listofActualLeafs.append(al)
 
-
+		nelemn+=1
 
 	#FIX when we have info about samples (material_type) but we don't have anything about cancer diagnosis. we create morphology
 	if(len(listmor)+len(listloc)+len(pt)+len(listgrad)+len(listwho)+len(listuicc)+len(stage)==0 and len(listmat)>0):
@@ -1287,6 +1248,15 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		nadd=fix_too_many_missing(idis,idmissing,listsam,pmod,possam,pospmod,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
+	#FIX when we have a location_of_the_tumour but we don't have a surgery_type
+	if(len(surgty) < len(loctum)):#missing surgery_type
+		idis='location_of_the_tumor'
+		idmissing='surgery_type'
+		pathmissing='/'+templateId+'/surgery/surgery:0/surgery_type'
+		nadd=fix_too_many_missing(idis,idmissing,loctum,surgty,posloctum,possurgty,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+		nelemn+=nadd	
+
+
 	#FIX when we have a surgery_radicality but we don't have a surgery_type		
 	if(len(surgty) < len(surgrad)):#missing surgery_type
 		idis='surgery_radicality'
@@ -1309,6 +1279,14 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		idmissing='surgery_radicality'
 		pathmissing='/'+templateId+'/surgery/surgery:0/surgery_radicality'
 		nadd=fix_too_many_missing(idis,idmissing,surgty,surgrad,possurgty,possurgrad,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+		nelemn+=nadd
+
+	#FIX when we have a surgery_type but we don't have a surgery_start_relative 	
+	if(len(ssr) < len(surgty)):#missing surgery_radicality
+		idis='surgery_type'
+		idmissing='surgery_start_relative'
+		pathmissing='/'+templateId+'/surgery/surgery:0/surgery_timing/surgery/surgery_start_relative'
+		nadd=fix_too_many_missing(idis,idmissing,surgty,ssr,possurgty,posssr,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
 
@@ -1445,6 +1423,93 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 		nelemn+=2
 
+	#FIX age_at_diagnosis missing
+	if(len(aad)==0):
+		path='/'+templateId+'/patient_data/primary_diagnosis/diagnosis_timing/primary_diagnosis:0/age_at_diagnosis'
+		lnew=findExactPath(listofleafs,path)
+		logging.debug(f'age_at_diagnosis nopathassoc path={path}')
+		value='NULLFLAVOURage'
+		closestposition=0
+		lnewnew=copy.deepcopy(lnew)	
+		ladded=ActualLeaf(lnewnew,value,closestposition,True)
+		listofActualLeafs.append(ladded)
+		nelemn+=1			
+
+	#FIX when we have biological_material_from_recurrence_available  but we don't have availability_invasion_front_digital_imaging
+	if(len(aifdi) < len(bmfr)):#missing vital_status
+		idis='biological_material_from_recurrence_available'
+		idmissing='availability_invasion_front_digital_imaging'
+		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/invasion_front/anatomical_pathology_finding/digital_imaging_invasion_front/availability_invasion_front_digital_imaging'
+		nadd=fix_too_many_missing(idis,idmissing,bmfr,aifdi,posbmfr,posaifdi,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+		nelemn+=nadd
+
+
+
+	#FIX for ehrbase bug
+	#when we have radiation_therapy or pharmacotherapy or targeted therapy we MUST have response_to_therapy
+	#date_of_start_of_radiation_therapy for radiation_therapy dsrt,posdsrt
+	#date_of_start_of_pharmacotherapy for pharmacotherapy listofdateofstart,posdt
+	#date_of_start_of_targeted_therapy for targeted_therapy  dstt,posdstt
+	#specific_response for response_to_therapy sresp,possresp
+	if(config.ehrbase==1):
+		therapies=[len(dsrt),len(listofdateofstart),len(dstt)]
+		maxtherapies=max(therapies)
+		maxt=therapies.index(maxtherapies)
+		if(len(sresp)==0 and len(sresp)<maxtherapies):
+			#create specific_response and time_of_therapy_response
+			if(maxt==0):#pick from radiation
+				print(f'warning FLAG EHRBASE used for Patient {patientid} from radiation_therapy')
+				logging.warning(f'FLAG EHRBASE used for Patient {patientid} from radiation_therapy')
+				idis='date_of_start_of_radiation_therapy'
+				idmissing='specific_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/specific_response'
+				other_paths=[['encoding','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/encoding'],\
+				['language','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/language'],
+				['from_event','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/from_event']]
+				nadd=fix_too_many_missing(idis,idmissing,dsrt,sresp,posdsrt,possresp,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+				nelemn+=nadd
+
+				idis='specific_response'
+				idmissing='time_of_therapy_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/time_of_therapy_response'
+				nadd=fix_too_many_missing(idis,idmissing,sresp,ttr,possresp,posttr,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+				nelemn+=nadd	
+
+			elif(maxt==1):#pick from pharmaco
+				print(f'warning FLAG EHRBASE used for Patient {patientid} from pharmacotherapy')
+				logging.warning(f'FLAG EHRBASE used for Patient {patientid} from pharmacotherapy')
+				idis='date_of_start_of_pharmacotherapy'
+				idmissing='specific_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/specific_response'
+				other_paths=[['encoding','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/encoding'],\
+				['language','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/language'],
+				['from_event','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/from_event']]
+				nadd=fix_too_many_missing(idis,idmissing,listofdateofstart,sresp,posdt,possresp,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+				nelemn+=nadd
+
+				idis='specific_response'
+				idmissing='time_of_therapy_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/time_of_therapy_response'
+				nadd=fix_too_many_missing(idis,idmissing,sresp,ttr,possresp,posttr,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+				nelemn+=nadd
+
+			else:#pick from targeted
+				print(f'warning FLAG EHRBASE used for Patient {patientid} from targeted_therapy')
+				logging.warning(f'FLAG EHRBASE used for Patient {patientid} from targeted_therapy')
+				idis='date_of_start_of_targeted_therapy'
+				idmissing='specific_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/specific_response'
+				other_paths=[['encoding','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/encoding'],\
+				['language','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/language'],
+				['from_event','/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/from_event']]
+				nadd=fix_too_many_missing(idis,idmissing,dstt,sresp,posdstt,possresp,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+				nelemn+=nadd
+
+				idis='specific_response'
+				idmissing='time_of_therapy_response'
+				pathmissing='/'+templateId+'/therapies/response_to_therapy/clinical_synopsis:0/response_timing/therapy_response_timestamp/time_of_therapy_response'
+				nadd=fix_too_many_missing(idis,idmissing,sresp,ttr,possresp,posttr,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+				nelemn+=nadd
 
 
 	#INDEPENDENT LEAFS
@@ -1465,7 +1530,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	lnew=findExactPath(listofleafs,path)
 	logging.debug(f'start_time path nopathassoc path={path}')
 	now = datetime.now()
-	starttime = now.strftime("%Y-%m-%dT%H:%M:%S:%f")[:-4]+'Z'
+	starttime = now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-4]+'Z'
 #	starttime="9999-05-25T15:48:35.35Z"
 	closestposition=0
 	lnewnew=copy.deepcopy(lnew)	

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 '''Post the compositions in a given directory filtered or not by a basename
+   now one ehr per composition
 '''
 import json
 import logging
@@ -12,7 +13,7 @@ from typing import Any,Callable
 import re
 from json_tools import diff
 import collections
-
+import uuid
 
 def compare(firstjson:json,secondjson:json)->None:
 	'''
@@ -92,6 +93,80 @@ def analyze_comparison(comparison_results:list)->int:
 				logging.debug(f"difference replace:{l['replace']} value={l['value']} prev={l['prev']}")		
 	return ndifferences			
 
+def create_ehr(client,EHR_SERVER_BASE_URL, auth,patientid):
+	logging.debug('----POST EHR----')
+	body1='''
+	{
+	  "_type" : "EHR_STATUS",
+	  "name" : {
+	    "_type" : "DV_TEXT",
+	    "value" : "EHR Status"
+	  },
+	  "subject" : {
+	    "_type" : "PARTY_SELF",
+	    "external_ref" : {
+	      "_type" : "PARTY_REF",
+	      "namespace" : "BBMRI",
+	      "type" : "PERSON",
+	      "id" : {
+	        "_type" : "GENERIC_ID",
+	'''
+	body2=f'	"value" : "{patientid}",'
+	body3='''
+	        "scheme" : "BBMRI"
+	      }
+	    }
+	  },
+	  "archetype_node_id" : "openEHR-EHR-EHR_STATUS.generic.v1",
+	  "is_modifiable" : true,
+	  "is_queryable" : true
+	}
+	'''
+	body=body1+body2+body3
+	logging.debug(f'body={body}')
+#	sys.exit(0)
+	ehrs = client.post(EHR_SERVER_BASE_URL + 'ehr', \
+	                   params={},headers={'Authorization':auth,'Content-Type':'application/JSON','Accept': 'application/json','Prefer': 'return={representation|minimal}'},\
+	                   data=body)
+
+
+	print(f'create ehr status_code={ehrs.status_code}')
+	logging.info(f'create ehr: status_code={ehrs.status_code}')
+	logging.debug(f'ehr url={ehrs.url}')
+	logging.debug(f'ehrs.headers={ehrs.headers}')
+	logging.debug(f'ehrs.text={ehrs.text}')
+	logging.debug(f'ehrs.json={ehrs.json}')
+
+	if(ehrs.status_code==409 and 'Specified party has already an EHR set' in json.loads(ehrs.text)['error']):
+		#get ehr summary by subject_id , subject_namespace
+		payload = {'subject_id':patientid,'subject_namespace':'BBMRI'}
+		ehrs = client.get(EHR_SERVER_BASE_URL + 'ehr',  params=payload,headers={'Authorization':auth,'Content-Type':'application/JSON','Accept': 'application/json'})
+		print('ehr already existent')
+		logging.info('ehr already existent')
+		logging.debug('----GET EHR----')
+		print(f'get ehr: status_code={ehrs.status_code}')
+		logging.info(f'get ehr: status_code={ehrs.status_code}')		
+		logging.debug(f'ehr url={ehrs.url}')
+		logging.debug(f'ehr.headers={ehrs.headers}')
+		logging.debug(f'ehr.text={ehrs.text}')
+		logging.debug(f'ehr.json={ehrs.json}')
+
+		ehrid=json.loads(ehrs.text)["ehr_id"]["value"]
+		print(f'Patient {patientid}: retrieved ehrid={ehrid}')
+		logging.info(f'Patient {patientid}: retrieved ehrid={ehrid}')
+		return ehrid
+
+
+	urlehrstring = ehrs.headers['Location']
+	ehridstring = "{"+urlehrstring.split("ehr/",2)[2]
+	ehrid=uuid.UUID(ehridstring)
+	print(f'Patient {patientid}: ehrid={str(ehrid)}')
+	logging.info(f'Patient {patientid}: ehrid={str(ehrid)}')
+	return ehrid
+
+
+
+
 
 
 def main():
@@ -102,7 +177,6 @@ def main():
 	parser.add_argument('--basename',help='basename to filter compositions')
 	parser.add_argument('--templatename',help='template to use when posting',default='crc_cohort')
 	parser.add_argument('--check',action='store_true', help='check the missing leafs for leafs that should be there but are not')
-
 	args=parser.parse_args()
 
 
@@ -161,23 +235,6 @@ def main():
 	client = requests.Session()
 	client.auth = ('ehrbase-user','SuperSecretPassword')
 	auth="Basic ZWhyYmFzZS11c2VyOlN1cGVyU2VjcmV0UGFzc3dvcmQ="
-	#get ehr summary by subject_id , subject_namespace
-	payload = {'subject_id':'patient1','subject_namespace':'CRS4'}
-	ehrs = client.get(EHR_SERVER_BASE_URL + 'ehr',  params=payload,headers={'Authorization':auth,'Content-Type':'application/JSON','Accept': 'application/json'})
-	logging.debug(ehrs.status_code)
-	logging.debug(ehrs.url)
-	logging.debug(ehrs.headers)
-	logging.debug(ehrs.text)
-	ehrid=''
-	if (ehrs.text):
-		ehrid=json.loads(ehrs.text)["ehr_id"]["value"]
-	else:
-		print(f'Cannot connect to ehrbase')
-		logging.error(f'Cannot connect to ehrbase')
-		sys.exit(1)
-
-	print(f'ehr_id={ehrid}')
-	logging.info(f'ehr_id={ehrid}')
 
 	nfiles=len(filelist)
 	print(f'{nfiles} to insert')
@@ -194,7 +251,8 @@ def main():
 		logging.error(f'Missing template {templatename}')
 		sys.exit(1)
 
-#   loop over files and load them
+
+#   loop over files and upload the compositions
 	myurl=url_normalize(EHR_SERVER_BASE_URL_FLAT)
 	compinserted=0
 	compok=0
@@ -203,8 +261,13 @@ def main():
 		logging.info(f'********FILE {i+1}/{nfiles}  {file}********')
 		filename=os.path.join(inputdir, file)
 		with open(filename) as json_file:
-			compositionjson = json.load(json_file)
-#		logging.debug(f'{compositionjson}')
+			compositionjson = json.load(json_file)	
+		patientid='Patient'+compositionjson[templatename+'/context/case_identification/patient_pseudonym']			
+		print(f'Patientid={patientid}')
+		logging.info(f'Patientid={patientid}')
+#		create ehr
+		ehrid=create_ehr(client,EHR_SERVER_BASE_URL, auth,patientid)
+# 		post composition
 		compositionjson=json.dumps(compositionjson)
 		response = client.post(myurl,
 					   params={'ehrId':str(ehrid),'templateId':templatename,'format':'FLAT'}, \
@@ -219,10 +282,14 @@ def main():
 			logging.info(f'response.text {response.text}')
 		else:
 			compinserted+=1
+			print(f'Composition inserted')
+			compositionUid=json.loads(response.text)["compositionUid"]
+			print(f'compositionUid={compositionUid}')
+			logging.info(f'compositionUid={compositionUid}')			
 			if(check):
+				print(f'checking...')
+				logging.info(f'checking...')
 				#get composition created and compare with the one posted
-				compositionUid=json.loads(response.text)["compositionUid"]
-				logging.debug(f'compositionUid={compositionUid}')
 				myurlu=url_normalize(EHR_SERVER_BASE_URL_FLAT+compositionUid) 
 				response = client.get(myurlu, \
 					   params={'ehrId':str(ehrid),'templateId':templatename,'format':'FLAT'}, \
@@ -233,8 +300,7 @@ def main():
 					logging.info(f"Couldn't retrieve the composition. Error{response.status_code}")
 					logging.info(f'response.headers {response.headers}')
 					logging.info(f'response.text {response.text}')	
-				else:
-					logging.debug('Checking the composition retrieved against the one given')					
+				else:			
 					origjson=json.loads(compositionjson)
 					retrievedjson=json.loads(response.text)["composition"]
 					origchanged=change_naming(origjson)
@@ -243,17 +309,23 @@ def main():
 					comparison_results=compare(origchanged,retrchanged)
 					ndiff=analyze_comparison(comparison_results)
 					if(ndiff>0):
+						print('original and retrieved json differ')
 						logging.info('original and retrieved json differ')
+						logging.debug(f'comparison_results:')
+						logging.debug(comparison_results)
 					else:
+						print('original and retrieved json do not differ')
 						logging.info('original and retrieved json do not differ')
 						compok+=1
 
 	print(f'{compinserted}/{nfiles} compositions inserted successfully')
 	logging.info(f'{compinserted}/{nfiles} compositions inserted successfully')
+	print(f'{nfiles-compinserted}/{nfiles} compositions with errors')
 	if(check):
 		print(f'{compok}/{compinserted} checked successfully')
 		logging.info(f'{compok}/{compinserted} checked successfully')
-
+		print(f'{compinserted-compok}/{compinserted} checked unsuccessfully')
+		logging.info(f'{compinserted-compok}/{compinserted} checked unsuccessfully')
 
 if __name__ == '__main__':
 	main()
