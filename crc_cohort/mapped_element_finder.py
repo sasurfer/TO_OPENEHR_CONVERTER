@@ -1341,6 +1341,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	# #FIX scheme_of_pharmacotherapy when other present
 	#count all the scheme of pharmacotherapy that contain Other as value
 	#and compare to the number of Other pharmacotherapy scheme
+#	print(f'schemeother={len(listofschemeother)} other={len(listofother)}')
 	if(len(listofschemeother) < len(listofother)):#missing schemes
 		difference=len(listofother)-len(listofschemeother)
 		if(len(listofschemeother)==0):
@@ -1358,9 +1359,12 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 				listofscheme.append(lladded)
 				posls.append(ll.get_positioninXML())
 		else:
+#			print(f'difference={difference}')
+#			print(f'poso={poso}')
+#			print(f'poslso={poslso}')
 			positions=find_position_of_missing_element(difference,poso,poslso)
 
-			#print(f'pos={positions}')
+#			print(f'pos={positions}')
 
 			for i in range(0,difference):
 				ll=listofother[positions[i]]
@@ -1374,8 +1378,11 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 				lladded=ActualLeaf(lnewnew,value,closestposition)
 				listofActualLeafs.append(lladded)
 				nelemn+=1
+#				print(f'iteration {i}')
+#				print(f'before len listofscheme={len(listofscheme)}')
 				listofscheme.append(lladded)
 				posls.append(ll.get_positioninXML())
+#				print(f'after len listofscheme={len(listofscheme)}')
 
 	#FIX date_of_start_of_pharmacotherapy when scheme present
 	if(len(listofscheme)>len(listofdateofstart)):#we miss date_of_start
@@ -1767,8 +1774,9 @@ def find_position_of_missing_element(difference,pos1,pos2):
 		gaps=gaps[0:row*lenpos2]+gaps[(row+1)*lenpos2:]
 #		print(f'pos={positions} gaps={gaps}')
 #	print(f'pos={positions}')
+	newpos=[pos for j,pos in enumerate(positions) if (j+1)%len(pos2)==0]
 
-	return positions
+	return newpos
 
 
 def pick_from_list(ll,value):
