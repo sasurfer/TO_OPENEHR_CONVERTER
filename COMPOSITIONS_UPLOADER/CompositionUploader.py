@@ -137,7 +137,7 @@ def create_ehr(client,EHR_SERVER_BASE_URL, auth,patientid):
 	logging.debug(f'ehrs.text={ehrs.text}')
 	logging.debug(f'ehrs.json={ehrs.json}')
 
-	if(ehrs.status_code==409 and 'Specified party has already an EHR set' in json.loads(ehrs.text)['error']):
+	if(ehrs.status_code==409 and 'Specified party has already an EHR set' in json.loads(ehrs.text)['message']):
 		#get ehr summary by subject_id , subject_namespace
 		payload = {'subject_id':patientid,'subject_namespace':'BBMRI'}
 		ehrs = client.get(EHR_SERVER_BASE_URL + 'ehr',  params=payload,headers={'Authorization':auth,'Content-Type':'application/JSON','Accept': 'application/json'})
@@ -156,7 +156,7 @@ def create_ehr(client,EHR_SERVER_BASE_URL, auth,patientid):
 		logging.info(f'Patient {patientid}: retrieved ehrid={ehrid}')
 		return ehrid
 
-
+#	print(f'ehrheaders={ehrs.headers}')
 	urlehrstring = ehrs.headers['Location']
 	ehridstring = "{"+urlehrstring.split("ehr/",2)[2]
 	ehrid=uuid.UUID(ehridstring)

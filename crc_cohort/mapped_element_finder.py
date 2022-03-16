@@ -253,7 +253,21 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 			nelemn+=4
 
-		elif(lid=="material_type"):#specimen
+		elif(lid=="preservation_mode"):
+			#encoding
+			path='/'+templateId+'/sample/biospecimen_summary:0/encoding'
+			al=fill_in_encoding(path,ll,listofleafs)
+			listofActualLeafs.append(al)
+
+			#language
+			path='/'+templateId+'/sample/biospecimen_summary:0/language'
+			al=fill_in_language(path,ll,listofleafs,defaultLanguage)
+			listofActualLeafs.append(al)			
+
+			nelemn+=4
+
+		elif(lid=="availability_digital_imaging"):
+
 			#encoding
 			path='/'+templateId+'/histopathology/result_group/laboratory_test_result/encoding'
 			al=fill_in_encoding(path,ll,listofleafs)
@@ -789,6 +803,8 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	posaifdi=[]	
 #
 	aad=[]
+	adi=[]
+	posadi=[]
 #
 	for ll in listofActualLeafs:
 		lid=ll.get_id()
@@ -919,6 +935,10 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 			posaifdi.append(ll.get_positioninXML())
 		elif(lid=='age_at_diagnosis'):
 			aad.append(ll)
+		elif(lid=='availability_digital_imaging'):
+			adi.append(ll)
+			posadi.append(ll.get_positioninXML())
+
 
 	logging.debug(f'LIST LEN')
 	logging.debug(f'scheme_of_pharmacotherapy len={len(posls)}')
@@ -961,6 +981,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	logging.debug(f'date_of_start_of_targeted_therapy  len={len(posdstt)}')
 	logging.debug(f'biological_material_from_recurrence_available len={len(posbmfr)}')
 	logging.debug(f'availability_invasion_front_digital_imaging  len={len(posaifdi)}')
+	logging.debug(f'availability_digital_imaging  len={len(posadi)}')
 
 	#FIX when we have date_of_end_of_radiation_therapy but we don't have date_of_start_of_radiation_thearapy
 	if(len(dsrt) < len(dert)):#missing date_of_start_of_radiation_therapy
@@ -1095,12 +1116,12 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		nelemn+=1
 
 	#FIX when we have info about samples (material_type) but we don't have anything about cancer diagnosis. we create morphology
-	if(len(listmor)+len(listloc)+len(pt)+len(listgrad)+len(listwho)+len(listuicc)+len(stage)==0 and len(listmat)>0):
-		idis='material_type'
-		idmissing='morphology'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
-		nadd=fix_too_many_missing(idis,idmissing,listmat,listmor,posmat,posmor,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
-		nelemn+=nadd	
+	# if(len(listmor)+len(listloc)+len(pt)+len(listgrad)+len(listwho)+len(listuicc)+len(stage)==0 and len(listmat)>0):
+	# 	idis='material_type'
+	# 	idmissing='morphology'
+	# 	pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
+	# 	nadd=fix_too_many_missing(idis,idmissing,listmat,listmor,posmat,posmor,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+	# 	nelemn+=nadd	
 
 	#FIX WHEN WE HAVE distant_metastasis but we don't have Morphology 
 	if(len(listmor) < len(dmeta)):
@@ -1210,7 +1231,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listsam) < len(listyear)):#missing sample_id
 		idis='year_of_sample_collection'
 		idmissing='sample_id'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/sample_id'
+		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/sample_id'
 		nadd=fix_too_many_missing(idis,idmissing,listyear,listsam,posyear,possam,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1218,17 +1239,13 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listmat)<len(listsam)):#missing material_type
 		idis='sample_id'
 		idmissing='material_type'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/material_type'
-		other_paths=[['encoding','/'+templateId+'/histopathology/result_group/laboratory_test_result/encoding'],\
-		['language','/'+templateId+'/histopathology/result_group/laboratory_test_result/language'],\
-		['test_name','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/test_name'],\
-		['time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0']]
-		nadd=fix_too_many_missing(idis,idmissing,listsam,listmat,possam,posmat,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/material_type'
+		nadd=fix_too_many_missing(idis,idmissing,listsam,listmat,possam,posmat,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 	elif(len(listsam)<len(listmat)):#missing sample_id
 		idis='material_type'
 		idmissing='sample_id'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/sample_id'
+		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/sample_id'
 		nadd=fix_too_many_missing(idis,idmissing,listmat,listsam,posmat,possam,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1236,7 +1253,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listyear) < len(listsam)):#missing year_of_sample
 		idis='sample_id'
 		idmissing='year_of_sample_collection'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/year_of_sample_collection'
+		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/specimen/year_of_sample_collection'
 		nadd=fix_too_many_missing(idis,idmissing,listsam,listyear,possam,posyear,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1244,8 +1261,10 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(pmod) < len(listsam)):#missing preservation_mode
 		idis='sample_id'
 		idmissing='preservation_mode'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/specimen_preparation/preservation_mode'
-		nadd=fix_too_many_missing(idis,idmissing,listsam,pmod,possam,pospmod,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
+		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/preservation_mode'
+		other_paths=[['encoding','/'+templateId+'/sample/biospecimen_summary:0/encoding'],\
+		['language','/'+templateId+'/sample/biospecimen_summary:0/language']]
+		nadd=fix_too_many_missing(idis,idmissing,listsam,pmod,possam,pospmod,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
 		nelemn+=nadd
 
 	#FIX when we have a location_of_the_tumour but we don't have a surgery_type
@@ -1450,7 +1469,18 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		nadd=fix_too_many_missing(idis,idmissing,bmfr,aifdi,posbmfr,posaifdi,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
-
+	#FIX when we have cancer_diagnosis instantiated but we don't have laboratory_results language and encoding
+	#for cancer diagnosis we pick morphology for lab we pick availability_digital_imaging
+	if(len(adi) < len(listmor)):#missing 
+		idis='morphology'
+		idmissing='availability_digital_imaging'
+		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/anatomical_pathology_examination/anatomical_pathology_finding:0/media_file/availability_digital_imaging'
+		other_paths=[['encoding','/'+templateId+'/histopathology/result_group/laboratory_test_result/encoding'],\
+		['language','/'+templateId+'/histopathology/result_group/laboratory_test_result/language'],\
+		['test_name','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/test_name'],\
+		['time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0']]
+		nadd=fix_too_many_missing(idis,idmissing,listmor,adi,posmor,posadi,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
+		nelemn+=nadd
 
 	#FIX for ehrbase bug
 	#when we have radiation_therapy or pharmacotherapy or targeted therapy we MUST have response_to_therapy
@@ -2041,7 +2071,25 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 				logging.warning(f'id={ll.get_id()} value {value} not found as possiblelabel')
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')				
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/material_type')):
+		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/preservation_mode')):
+			#preservation_mode
+			origvalue=ll.get_data()
+			if('NULLFLAVOUR' in origvalue):
+				value={}
+				value['value']=origvalue
+				ll.set_data(value)
+				continue
+			value=origvalue.upper()
+			# if(value=='OTHER'):
+			# 	value='Other specimen type'.upper()
+			# elif(value=='TUMOR'):
+			# 	value='Tumor tissue sample'.upper()
+			# elif(value=='HEALTHY COLON TISSUE'):
+			# 	value='Tissue specimen from colon'.upper()
+			newvalue=pick_from_list(ll,value)
+			ll.set_data(newvalue)
+			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
+		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/material_type')):
 			#material_type
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2170,7 +2218,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list_nras(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')		
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/specimen:0/sample_id')):
+		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/sample_id')):
 			#sample_id
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
