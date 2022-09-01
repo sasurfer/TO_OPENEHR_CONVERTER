@@ -158,7 +158,7 @@ def create_ehr(client,EHR_SERVER_BASE_URL, auth,patientid):
 
 #	print(f'ehrheaders={ehrs.headers}')
 	urlehrstring = ehrs.headers['Location']
-	ehridstring = "{"+urlehrstring.split("ehr/",2)[2]
+	ehridstring = "{"+urlehrstring.split("v1/ehr/",2)[2]
 	ehrid=uuid.UUID(ehridstring)
 	print(f'Patient {patientid}: ehrid={str(ehrid)}')
 	logging.info(f'Patient {patientid}: ehrid={str(ehrid)}')
