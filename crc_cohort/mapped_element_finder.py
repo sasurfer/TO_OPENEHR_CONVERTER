@@ -36,7 +36,7 @@ def meventfinder(myleaf,listofitems):
 			logging.debug(index)
 			for k in c:
 				logging.debug(f'c[k] {c[k]}')
-				if c[k]==annotation['XSD label']:
+				if c[k].lower()==annotation['XSD label'].lower():
 					indexes.append(index)
 					logging.debug(f'FOUNDDDDDDDDD {index}')
 		return indexes
@@ -685,6 +685,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		elif(lid=="date_of_end_of_targeted_therapy"):#end_of_targeted_therapy
 			#from_event
 			path='/'+templateId+'/therapies/targeted_therapy/targeted_therapy:0/targeted_therapy_end/end_of_targeted_therapy:0/from_event'
+			#path='/'+templateId+'/therapies/targeted_therapy/targeted_therapy:0/targeted_therapy_end/end_of_targeted_therapy/from_event'
 			al=fill_in_default(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
@@ -820,7 +821,8 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 			listofdateofstart.append(ll)
 			posdt.append(ll.get_positioninXML())
 		elif(lid=='other_pharmacotherapy_scheme'):
-			if(ll.getnull()==False):
+			if(ll.getnull()==False and ll.get_data()!='NULLFLAVOURnodata'):
+				# print(f'BBBBBBBBBBB {lid} {ll.get_data()} {ll.get_path()} {ll.getnull()} ')
 				listofother.append(ll)
 				poso.append(ll.get_positioninXML())
 		elif(lid=='localization_of_primary_tumor'):
@@ -983,7 +985,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	logging.debug(f'availability_invasion_front_digital_imaging  len={len(posaifdi)}')
 	logging.debug(f'availability_digital_imaging  len={len(posadi)}')
 
-	#FIX when we have date_of_end_of_radiation_therapy but we don't have date_of_start_of_radiation_thearapy
+	#FIX when we have date_of_end_of_radiation_therapy but we don't have date_of_start_of_radiation_therapy
 	if(len(dsrt) < len(dert)):#missing date_of_start_of_radiation_therapy
 		idis='date_of_end_of_radiation_therapy'
 		idmissing='date_of_start_of_radiation_therapy'
@@ -1364,19 +1366,22 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listofschemeother) < len(listofother)):#missing schemes
 		difference=len(listofother)-len(listofschemeother)
 		if(len(listofschemeother)==0):
-			for ll in listofother:
-				#create a new scheme_of_pharmacotherapy with value 'Other'			
-				path='/'+templateId+'/therapies/pharmacotherapy/medication_management:0/scheme_of_pharmacotherapy'
-				lnew=findExactPath(listofleafs,path)
-				logging.debug(f'scheme_of_pharmacotherapy from other_pharmacotherapy_scheme nopathassoc path={path}')
-				value='Other'
-				closestposition=ll.get_positioninXML()
-				lnewnew=copy.deepcopy(lnew)
-				lladded=ActualLeaf(lnewnew,value,closestposition)
-				listofActualLeafs.append(lladded)
-				nelemn+=1
-				listofscheme.append(lladded)
-				posls.append(ll.get_positioninXML())
+			if len(listofscheme)==len(listofother):
+				pass
+			else:
+				for ll in listofother:
+					#create a new scheme_of_pharmacotherapy with value 'Other'			
+					path='/'+templateId+'/therapies/pharmacotherapy/medication_management:0/scheme_of_pharmacotherapy'
+					lnew=findExactPath(listofleafs,path)
+					logging.debug(f'scheme_of_pharmacotherapy from other_pharmacotherapy_scheme nopathassoc path={path}')
+					value='Other'
+					closestposition=ll.get_positioninXML()
+					lnewnew=copy.deepcopy(lnew)
+					lladded=ActualLeaf(lnewnew,value,closestposition)
+					listofActualLeafs.append(lladded)
+					nelemn+=1
+					listofscheme.append(lladded)
+					posls.append(ll.get_positioninXML())
 		else:
 #			print(f'difference={difference}')
 #			print(f'poso={poso}')

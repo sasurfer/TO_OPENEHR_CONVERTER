@@ -50,15 +50,19 @@ def parse_wt(cj):
 	
 
 def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
-	if (root['id']=="clinical_synopsis"):
- 		logging.debug(f"SYNOPSYS {path} {root['min']} {root['max']}")
+	# if (root['id']=="clinical_synopsis"):
+ 	# 	logging.debug(f"SYNOPSYS {path} {root['min']} {root['max']}")
 	if(comp):
 		if 'min' in root:
 			if (root['min']<1):
-				comp=False	
+				comp=False
+	logging.debug(f"AAAAAAAA {root['id']}")	
 	if 'children' in root:
+		logging.debug(f"BBBBBBBBBBB {root['id']}")	
 		if( 'max' in root and ( root['max']==-1 or root['max']>1 )):
+			logging.debug(f"CCCCCCCCC {root['id']}")
 			path=path+'/'+root['id']+':0'
+			logging.debug(f"DDDDDDDD {path}")
 			if 'annotations' in root:
 				annotations=root['annotations']
 				result=[iii for iii in annotations if iii.startswith('XSD label')]
@@ -74,6 +78,7 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 				logging.debug(f"added {root['name']} that was missing")
 			pippo=NoLeaf(root['id'],root['name'],path, \
 				root['rmType'],root['min'],root['max'],comp,annotations)
+			logging.debug(f"EEEEE {root['id']} {root['name']} {path} {root['rmType']} {root['min']} {root['max']} {comp} {annotations}")	
 			listofnoleafsannotated.append(pippo)
 			pluto=Node(root['id'],path,root['min'],root['max'],annotations,pippo)
 			listofNodes.append(pluto)
