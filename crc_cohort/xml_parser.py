@@ -1,6 +1,24 @@
 #!/usr/bin/python3
 '''parse an xml crc_cohort file and returns a list containing bhpatient trees'''
+import logging
 import xml.etree.ElementTree as ET
+
+def remove_empty_events(bhtree):
+	n_events=len(bhtree[1][0][1])
+	empty_events=[]
+	#find empty events
+	for i in range(n_events):
+		n_dataelement=len(bhtree[1][0][1][i][0][0])
+		if n_dataelement==0:
+			patient=bhtree[0].text
+			eventtype=bhtree[1][0][1][i].attrib['eventtype']
+			print(f'Patient {patient} Found {eventtype} empty. Removing it')
+			#logging.debug(f'Patient {patient} Found {eventtype} empty. Removing it')
+			empty_events.append(i)
+	#remove empty events
+	for j in empty_events[::-1]:
+		bhtree[1][0][1].remove(bhtree[1][0][1][j])
+	
 
 def find_ns(bhtree):
 	'''find the namespace from a bhtree'''

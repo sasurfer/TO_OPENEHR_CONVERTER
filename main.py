@@ -43,7 +43,8 @@ def main():
 		raise ValueError('Invalid log level: %s' % loglevel)
 	logging.basicConfig(filename='./conversion.log',filemode='w',level=loglevel)
 
-	
+	logging.info(f'Running with logging level {loglevel}')
+
 	inputfile=args.inputfile
 	webtemplate=args.webtemplate
 	outputfilebasename=args.outputfilebasename
@@ -73,6 +74,7 @@ def main():
 	#webtemplate="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/TMP/WebTemplatecrc_cohort_dazipMOD.json"
 	#webtemplate="/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/CRC_COHORT/crc_cohort_v2.json"
 	myjson,defaultLanguage,templateId=read_wt(webtemplate)
+	templateId=templateId.lower()
 	logging.info(json.dumps(myjson, indent = 4, sort_keys=True))
 
 	#create leafs, noleafs(4 molteplicity) and nodes

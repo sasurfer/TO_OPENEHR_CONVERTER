@@ -128,7 +128,8 @@ def fill_in_diagnosis(path,ll,listofleafs):
 	pdg['code']=lnew.get_acceptable_values()[0]['list'][0]['value']
 	pdg['terminology']=lnew.get_acceptable_values()[0]['terminology']	
 	lnewnew=copy.deepcopy(lnew)	
-	return ActualLeaf(lnewnew,pdg,0)
+	closestposition=ll.get_positioninXML()
+	return ActualLeaf(lnewnew,pdg,closestposition)
 
 
 
@@ -255,12 +256,12 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 		elif(lid=="preservation_mode"):
 			#encoding
-			path='/'+templateId+'/sample/biospecimen_summary:0/encoding'
+			path='/'+templateId+'/sample/specimen_summary:0/encoding'
 			al=fill_in_encoding(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
 			#language
-			path='/'+templateId+'/sample/biospecimen_summary:0/language'
+			path='/'+templateId+'/sample/specimen_summary:0/language'
 			al=fill_in_language(path,ll,listofleafs,defaultLanguage)
 			listofActualLeafs.append(al)			
 
@@ -269,23 +270,23 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 		elif(lid=="availability_digital_imaging"):
 
 			#encoding
-			path='/'+templateId+'/histopathology/result_group/laboratory_test_result/encoding'
+			path='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/encoding'
 			al=fill_in_encoding(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
 			#language
-			path='/'+templateId+'/histopathology/result_group/laboratory_test_result/language'
+			path='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/language'
 			al=fill_in_language(path,ll,listofleafs,defaultLanguage)
 			listofActualLeafs.append(al)
 
 			#test_name
-			path='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/test_name'
+			path='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/test_name'
 			al=fill_in_default(path,ll,listofleafs)			
 			listofActualLeafs.append(al)
 
 			#time
-			path='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/time'
-			shortpath='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0'
+			path='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/time'
+			shortpath='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0'
 			al=fill_in_time(path,shortpath,ll,listofNodes,all_items_patient_i,listofleafs)
 			listofActualLeafs.append(al)
 
@@ -293,17 +294,17 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 		elif(lid=="localization_of_primary_tumor"):#cancer diagnosis
 			#encoding
-			path='/'+templateId+'/histopathology/result_group/cancer_diagnosis/encoding'
+			path='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/encoding'
 			al=fill_in_encoding(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
 			#language
-			path='/'+templateId+'/histopathology/result_group/cancer_diagnosis/language'
+			path='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/language'
 			al=fill_in_language(path,ll,listofleafs,defaultLanguage)
 			listofActualLeafs.append(al)
 
 			#problem_diagnosis_name
-			path='/'+templateId+'/histopathology/result_group/cancer_diagnosis/problem_diagnosis_name'
+			path='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/problem_diagnosis_name'
 			al=fill_in_diagnosis(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
@@ -684,8 +685,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 
 		elif(lid=="date_of_end_of_targeted_therapy"):#end_of_targeted_therapy
 			#from_event
-			path='/'+templateId+'/therapies/targeted_therapy/targeted_therapy:0/targeted_therapy_end/end_of_targeted_therapy:0/from_event'
-			#path='/'+templateId+'/therapies/targeted_therapy/targeted_therapy:0/targeted_therapy_end/end_of_targeted_therapy/from_event'
+			path='/'+templateId+'/therapies/targeted_therapy/targeted_therapy:0/targeted_therapy_end/end_of_targeted_therapy/from_event'
 			al=fill_in_default(path,ll,listofleafs)
 			listofActualLeafs.append(al)
 
@@ -1121,7 +1121,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	# if(len(listmor)+len(listloc)+len(pt)+len(listgrad)+len(listwho)+len(listuicc)+len(stage)==0 and len(listmat)>0):
 	# 	idis='material_type'
 	# 	idmissing='morphology'
-	# 	pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
+	# 	pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
 	# 	nadd=fix_too_many_missing(idis,idmissing,listmat,listmor,posmat,posmor,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 	# 	nelemn+=nadd	
 
@@ -1129,7 +1129,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listmor) < len(dmeta)):
 		idis='distant_metastasis'
 		idmissing='morphology'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
 		nadd=fix_too_many_missing(idis,idmissing,dmeta,listmor,posdmeta,posmor,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1137,10 +1137,10 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listloc) < len(listmor)):#missing localization
 		idis='morphology'
 		idmissing='localization_of_primary_tumor'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/localization_of_primary_tumor'
-		other_paths=[['encoding','/'+templateId+'/histopathology/result_group/cancer_diagnosis/encoding'],\
-		['language','/'+templateId+'/histopathology/result_group/cancer_diagnosis/language'],\
-		['problem_diagnosis_name','/'+templateId+'/histopathology/result_group/cancer_diagnosis/problem_diagnosis_name']]
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/localization_of_primary_tumor'
+		other_paths=[['encoding','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/encoding'],\
+		['language','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/language'],\
+		['problem_diagnosis_name','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/problem_diagnosis_name']]
 		nadd=fix_too_many_missing(idis,idmissing,listmor,listloc,posmor,posloc,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
 		nelemn+=nadd
 
@@ -1148,10 +1148,10 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listloc) < len(pt)):#missing localization
 		idis='primary_tumour'
 		idmissing='localization_of_primary_tumor'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/localization_of_primary_tumor'
-		other_paths=[['encoding','/'+templateId+'/histopathology/result_group/cancer_diagnosis/encoding'],\
-		['language','/'+templateId+'/histopathology/result_group/cancer_diagnosis/language'],\
-		['problem_diagnosis_name','/'+templateId+'/histopathology/result_group/cancer_diagnosis/problem_diagnosis_name']]
+		pathmissing='/'+templateId+'/histopatholog:0/result_group/cancer_diagnosis/localization_of_primary_tumor'
+		other_paths=[['encoding','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/encoding'],\
+		['language','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/language'],\
+		['problem_diagnosis_name','/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/problem_diagnosis_name']]
 		nadd=fix_too_many_missing(idis,idmissing,pt,listloc,pospt,posloc,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
 		nelemn+=nadd
 
@@ -1159,7 +1159,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listmor) < len(pt)):#missing localization
 		idis='primary_tumour'
 		idmissing='morphology'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology'
 		nadd=fix_too_many_missing(idis,idmissing,pt,listmor,pospt,posmor,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1168,7 +1168,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listlm) < len(listmor)):
 		idis='morphology'
 		idmissing='localization_of_metastasis'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/distant_metastasis/anatomical_location:0/localization_of_metastasis'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/distant_metastasis/anatomical_location:0/localization_of_metastasis'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,listlm,posmor,poslm,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1176,7 +1176,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(dmeta) < len(listmor)):
 		idis='morphology'
 		idmissing='distant_metastasis'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/distant_metastasis'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/distant_metastasis'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,dmeta,posmor,posdmeta,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1185,7 +1185,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listgrad) < len(listmor)):#missing grade
 		idis='morphology'
 		idmissing='grade'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/grade'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/grade'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,listgrad,posmor,posgrad,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1193,7 +1193,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listwho) < len(listmor)):#missing grade
 		idis='morphology'
 		idmissing='who_version'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/histological_grading/who_version'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/histological_grading/who_version'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,listwho,posmor,poswho,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1201,7 +1201,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listuicc) < len(listmor)):#missing uicc_version
 		idis='morphology'
 		idmissing='uicc_version'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/uicc_version'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/uicc_version'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,listuicc,posmor,posuicc,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1209,7 +1209,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(stage) < len(listmor)):#missing uicc_version
 		idis='morphology'
 		idmissing='stage'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/stage'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/stage'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,stage,posmor,posstage,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1217,7 +1217,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(pt) < len(listmor)):#missing primary_tumour
 		idis='morphology'
 		idmissing='primary_tumour'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/primary_tumour'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/primary_tumour'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,pt,posmor,pospt,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1225,7 +1225,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(rln) < len(listmor)):#missing uicc_version
 		idis='morphology'
 		idmissing='regional_lymph_nodes'
-		pathmissing='/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/regional_lymph_nodes'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/regional_lymph_nodes'
 		nadd=fix_too_many_missing(idis,idmissing,listmor,rln,posmor,posrln,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1233,7 +1233,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listsam) < len(listyear)):#missing sample_id
 		idis='year_of_sample_collection'
 		idmissing='sample_id'
-		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/sample_id'
+		pathmissing='/'+templateId+'/sample/specimen_summary:0/sample_id'
 		nadd=fix_too_many_missing(idis,idmissing,listyear,listsam,posyear,possam,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1241,13 +1241,13 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listmat)<len(listsam)):#missing material_type
 		idis='sample_id'
 		idmissing='material_type'
-		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/material_type'
+		pathmissing='/'+templateId+'/sample/specimen_summary:0/specimen/material_type'
 		nadd=fix_too_many_missing(idis,idmissing,listsam,listmat,possam,posmat,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 	elif(len(listsam)<len(listmat)):#missing sample_id
 		idis='material_type'
 		idmissing='sample_id'
-		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/sample_id'
+		pathmissing='/'+templateId+'/sample/specimen_summary:0/sample_id'
 		nadd=fix_too_many_missing(idis,idmissing,listmat,listsam,posmat,possam,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1255,7 +1255,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(listyear) < len(listsam)):#missing year_of_sample
 		idis='sample_id'
 		idmissing='year_of_sample_collection'
-		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/specimen/year_of_sample_collection'
+		pathmissing='/'+templateId+'/sample/specimen_summary:0/specimen/year_of_sample_collection'
 		nadd=fix_too_many_missing(idis,idmissing,listsam,listyear,possam,posyear,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1263,9 +1263,9 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(pmod) < len(listsam)):#missing preservation_mode
 		idis='sample_id'
 		idmissing='preservation_mode'
-		pathmissing='/'+templateId+'/sample/biospecimen_summary:0/preservation_mode'
-		other_paths=[['encoding','/'+templateId+'/sample/biospecimen_summary:0/encoding'],\
-		['language','/'+templateId+'/sample/biospecimen_summary:0/language']]
+		pathmissing='/'+templateId+'/sample/specimen_summary:0/specimen/preservation_mode'
+		other_paths=[['encoding','/'+templateId+'/sample/specimen_summary:0/encoding'],\
+		['language','/'+templateId+'/sample/specimen_summary:0/language']]
 		nadd=fix_too_many_missing(idis,idmissing,listsam,pmod,possam,pospmod,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
 		nelemn+=nadd
 
@@ -1470,7 +1470,7 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(aifdi) < len(bmfr)):#missing vital_status
 		idis='biological_material_from_recurrence_available'
 		idmissing='availability_invasion_front_digital_imaging'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/invasion_front/anatomical_pathology_finding/digital_imaging_invasion_front/availability_invasion_front_digital_imaging'
+		pathmissing='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/invasion_front/anatomical_pathology_finding/digital_imaging_invasion_front/availability_invasion_front_digital_imaging'
 		nadd=fix_too_many_missing(idis,idmissing,bmfr,aifdi,posbmfr,posaifdi,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i)
 		nelemn+=nadd
 
@@ -1479,11 +1479,11 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 	if(len(adi) < len(listmor)):#missing 
 		idis='morphology'
 		idmissing='availability_digital_imaging'
-		pathmissing='/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/anatomical_pathology_examination/anatomical_pathology_finding:0/media_file/availability_digital_imaging'
-		other_paths=[['encoding','/'+templateId+'/histopathology/result_group/laboratory_test_result/encoding'],\
-		['language','/'+templateId+'/histopathology/result_group/laboratory_test_result/language'],\
-		['test_name','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/test_name'],\
-		['time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0/time','/'+templateId+'/histopathology/result_group/laboratory_test_result/any_event:0']]
+		pathmissing='/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/anatomical_pathology_examination/anatomical_pathology_finding:0/media_file/availability_digital_imaging'
+		other_paths=[['encoding','/'+templateId+'/histopathology:0/result_group/laboratory_test_result/encoding'],\
+		['language','/'+templateId+'/histopathology:0/result_group/laboratory_test_result/language'],\
+		['test_name','/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/test_name'],\
+		['time','/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0/time','/'+templateId+'/histopathology:0/result_group/laboratory_test_result/any_event:0']]
 		nadd=fix_too_many_missing(idis,idmissing,listmor,adi,posmor,posadi,listofActualLeafs,listofleafs,pathmissing,defaultLanguage,listofNodes,all_items_patient_i,other_paths)
 		nelemn+=nadd
 
@@ -1970,7 +1970,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')				
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/distant_metastasis/anatomical_location:0/localization_of_metastasis')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/distant_metastasis/anatomical_location:0/localization_of_metastasis')):
 			#localization_of_metastasis from DV_TEXT to DV_CODED_TEXT
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -1989,7 +1989,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 				logging.warning(f'warning: id={ll.get_id()} value set from {ll.get_data()} to {newvalue} ')								
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')			
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/grade')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/grade')):
 			#grade from DV_TEXT to DV_CODED_TEXT
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2001,7 +2001,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')			
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/distant_metastasis')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/distant_metastasis')):
 			#distant_metastasis from DV_TEXT to DV_CODED_TEXT
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2013,7 +2013,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')		
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/regional_lymph_nodes')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/regional_lymph_nodes')):
 			#regional_lymph_nodes from DV_TEXT to DV_CODED_TEXT
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2025,7 +2025,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/primary_tumour')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/primary_tumour')):
 			#primary_tumour
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2037,7 +2037,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/localization_of_primary_tumor')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/localization_of_primary_tumor')):
 			#localization_of_primary_tumor
 			#part starting with C and add a space
 			origvalue=ll.get_data()
@@ -2076,7 +2076,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 				logging.warning(f'id={ll.get_id()} value {value} not found as possiblelabel')
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')				
-		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/preservation_mode')):
+		elif(comparestrings(llpath,'/'+templateId+'/sample/specimen_summary:0/specimen/preservation_mode')):
 			#preservation_mode
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2094,7 +2094,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
-		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/material_type')):
+		elif(comparestrings(llpath,'/'+templateId+'/sample/specimen_summary:0/specimen/material_type')):
 			#material_type
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2112,7 +2112,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/stage')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/stage')):
 			#stage
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2124,7 +2124,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue}to {newvalue}')		
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/uicc_version')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/tnm_pathological_classification/uicc_version')):
 			#uicc_version
 			#take first three characters not null and compare to first three
 			origvalue=ll.get_data()
@@ -2223,7 +2223,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list_nras(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')		
-		elif(comparestrings(llpath,'/'+templateId+'/sample/biospecimen_summary:0/sample_id')):
+		elif(comparestrings(llpath,'/'+templateId+'/sample/specimen_summary:0/sample_id')):
 			#sample_id
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2239,7 +2239,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue['type']='unknown'
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')		
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology')):
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/morphology')):
 			#morphology
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2264,7 +2264,7 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 			newvalue=pick_from_list_label(ll,value)
 			ll.set_data(newvalue)
 			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
-		elif(comparestrings(llpath,'/'+templateId+'/histopathology/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/histological_grading/who_version')):	
+		elif(comparestrings(llpath,'/'+templateId+'/histopathology:0/result_group/cancer_diagnosis/synoptic_details_-_colorectal_cancer/microscopic_findings/histological_grading/who_version')):	
 			#who_version
 			origvalue=ll.get_data()
 			if('NULLFLAVOUR' in origvalue):
@@ -2500,7 +2500,14 @@ def fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs):
 				logging.warning(f'{ll.get_id()} cannot map {origvalue}')
 				newvalue=origvalue
 			ll.set_data(newvalue)
-			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')				
+			logging.debug(f'fixed {ll.get_id()} from {origvalue} to {newvalue}')
+		elif(comparestrings(llpath,'/'+templateId+'/patient_data/primary_diagnosis/date_of_diagnosis')):
+			#date_of_diagnosis_for_patient_59939
+			origvalue1=ll.get_data().split('T')[0]
+			origvalue2='T'+ll.get_data().split('T')[1]
+			if len(origvalue1)==9 :
+				newvalue=origvalue1[:-1]+'0'+origvalue1[-1]+origvalue2
+				ll.set_data(newvalue)					
 
 	#null_flavour round
 	#every missing value is started with NULLFLAVOUR

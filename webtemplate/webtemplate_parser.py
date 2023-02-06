@@ -18,7 +18,7 @@ def parse_wt(cj):
 	for i in cj:
 		logging.info(i)
 	#root
-	path=path+cj['id']
+	path=path+cj['id'].lower()
 	print(f"path={path}")
 #	for i in cj['children']:
 #		print(i['id'])
@@ -61,7 +61,7 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 		logging.debug(f"BBBBBBBBBBB {root['id']}")	
 		if( 'max' in root and ( root['max']==-1 or root['max']>1 )):
 			logging.debug(f"CCCCCCCCC {root['id']}")
-			path=path+'/'+root['id']+':0'
+			path=path+'/'+root['id'].lower()+':0'
 			logging.debug(f"DDDDDDDD {path}")
 			if 'annotations' in root:
 				annotations=root['annotations']
@@ -74,16 +74,16 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 			else:
 				annotations='Not mapped'
 			if 'name' not in root:
-				root['name']=root['id']
+				root['name']=root['id'].lower()
 				logging.debug(f"added {root['name']} that was missing")
-			pippo=NoLeaf(root['id'],root['name'],path, \
+			pippo=NoLeaf(root['id'].lower(),root['name'].lower(),path, \
 				root['rmType'],root['min'],root['max'],comp,annotations)
-			logging.debug(f"EEEEE {root['id']} {root['name']} {path} {root['rmType']} {root['min']} {root['max']} {comp} {annotations}")	
+			logging.debug(f"EEEEE {root['id'].lower()} {root['name'].lower()} {path} {root['rmType']} {root['min']} {root['max']} {comp} {annotations}")	
 			listofnoleafsannotated.append(pippo)
-			pluto=Node(root['id'],path,root['min'],root['max'],annotations,pippo)
+			pluto=Node(root['id'].lower(),path,root['min'],root['max'],annotations,pippo)
 			listofNodes.append(pluto)
 		else:
-			path=path+'/'+root['id']
+			path=path+'/'+root['id'].lower()
 			if 'annotations' in root:
 				annotations=root['annotations']
 				result=[iii for iii in annotations if iii.startswith('XSD label')]
@@ -93,14 +93,14 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 #					annotations['XSD label']=annotations['XSD label'].strip()
 			else:
 				annotations='Not mapped'			
-			pluto=Node(root['id'],path,root['min'],root['max'],annotations)
+			pluto=Node(root['id'].lower(),path,root['min'],root['max'],annotations)
 			listofNodes.append(pluto)
 #		print(path)
 		for ch in root['children']:
 			findleaf(ch,path,listofleafs,listofnoleafsannotated,comp,listofNodes)
 	else:
 		#add to listofleafs
-		path=path+"/"+root["id"]
+		path=path+"/"+root["id"].lower()
 #		print(path)
 		#logging.debug(root['id'],root['rmType'])
 		if 'inputs' in root:
@@ -119,13 +119,13 @@ def findleaf(root,path,listofleafs,listofnoleafsannotated,comp,listofNodes):
 			annotations='Not mapped'
 
 		if 'name' not in root:
-			root['name']=root['id']
+			root['name']=root['id'].lower()
 			logging.debug(f"added {root['name']} that was missing")
 
-		pippo=Leaf(root['id'],root['name'],path,   \
+		pippo=Leaf(root['id'].lower(),root['name'].lower(),path,   \
 				root['rmType'],root['min'],root['max'], \
 				inputs,comp,annotations)
-		pluto=Node(root['id'],path+'/'+root['id'],root['min'],root['max'],annotations,pippo)
+		pluto=Node(root['id'].lower(),path+'/'+root['id'].lower(),root['min'],root['max'],annotations,pippo)
 		listofleafs.append(pippo)
 		listofNodes.append(pluto)
 		#print("ARGH")

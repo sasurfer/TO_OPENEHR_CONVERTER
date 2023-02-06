@@ -262,7 +262,7 @@ def main():
 		filename=os.path.join(inputdir, file)
 		with open(filename) as json_file:
 			compositionjson = json.load(json_file)	
-		patientid='Patient'+compositionjson[templatename+'/context/case_identification/patient_pseudonym']			
+		patientid='Patient'+compositionjson[templatename.lower()+'/context/case_identification/patient_pseudonym']			
 		print(f'Patientid={patientid}')
 		logging.info(f'Patientid={patientid}')
 #		create ehr

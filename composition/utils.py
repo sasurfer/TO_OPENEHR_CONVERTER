@@ -4,7 +4,7 @@ from rm.rmclasses import CODE_PHRASE
 import logging
 import config
 import sys
-from crc_cohort.xml_parser import parse_xml
+from crc_cohort.xml_parser import parse_xml,remove_empty_events
 from crc_cohort.mapped_element_finder import mefinder,all_items,meventfinder,mtimefinder
 #from crc_cohort.mapped_element_finder import fill_default_items_crc  
 from crc_cohort.mapped_element_finder import complete_actual_leafs_crc,create_listofnoactualleafs_crc
@@ -58,7 +58,11 @@ def findExactPath(listofleafs,path):
 
 def readinput(inputfile):
 	if(config.fr==1):
-		return parse_xml(inputfile)
+		lop=parse_xml(inputfile)
+		for l in lop:
+			remove_empty_events(l)
+		return lop
+#		return parse_xml(inputfile)
 	elif(config.fr==2):
 		print("Not yet implemented")
 		exit(0)
@@ -84,15 +88,23 @@ def get_value(all_items_patient_i,f):
 	if(config.fr==1):
 		values=[]
 		logging.debug(f"BARA {all_items_patient_i[f]}")
-		value=all_items_patient_i[f][1]
-		try:
-			valuestripped=re.sub(r"[\n\t\s]*", "", value)
-		except TypeError as t:
-			logging.info(f'typeerror {t} in position {f}')
-			logging.info(f'null value inserted')
-			logging.info(f'element: {all_items_patient_i[f]}')
-			values.append("NULLFLAVOURnodata")
-			return values
+		if all_items_patient_i[f][0]=='Location':
+			logging.debug('this way')
+			value=all_items_patient_i[f][2]['name']
+			logging.debug(f'value={value}')
+			valuestripped=value
+		else:
+			logging.debug('that way')
+			value=all_items_patient_i[f][1]
+			logging.debug(f'value={value}')
+			try:
+				valuestripped=re.sub(r"[\n\t\s]*", "", value)
+			except TypeError as t:
+				logging.info(f'typeerror {t} in position {f}')
+				logging.info(f'null value inserted')
+				logging.info(f'element: {all_items_patient_i[f]}')
+				values.append("NULLFLAVOURnodata")
+				return values
 		if(valuestripped==""):
 			#look for values
 			somevalue=True
@@ -204,9 +216,9 @@ def check_missing_leafs(patid,listofleafs,listofActualLeafs,listofNodes):
 			xelemcard+=1
 			continue
 		path=ll.get_path()
+		logging.debug(f"calling findclosestPath with path {path}")
 		maxnumber,maxpath,maxpathorigin=findclosestPath(listofActualLeafs,path)
-		logging.debug(f"path {path}")
-		logging.debug(f'maxnumber={maxnumber} maxpath={maxpath} maxpathorigin={maxpathorigin}')
+		logging.debug(f'maxnumber={maxnumber} maxpath={maxpath} maxpathorigin={maxpathorigin}')		
 		#now we print the ones we should have had but we hadn't
 		#calculate how many words between slashes we have since maxpath to get to path
 		slashes=path.count('/')-maxpath.count("/")
