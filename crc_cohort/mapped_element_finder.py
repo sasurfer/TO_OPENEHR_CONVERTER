@@ -131,9 +131,14 @@ def fill_in_diagnosis(path,ll,listofleafs):
 	closestposition=ll.get_positioninXML()
 	return ActualLeaf(lnewnew,pdg,closestposition)
 
+def fill_in_patientid(path,listofleafs,bbpatientid):
+	from composition.utils import findExactPath
+	lnew=findExactPath(listofleafs,path)	
+	closestposition=0
+	lnewnew=copy.deepcopy(lnew)	
+	return ActualLeaf(lnewnew,bbpatientid,closestposition)
 
-
-def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs):
+def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs,mapping_ids):
 	'''add default values taken from the template or not to the compulsory fields not fillable with the input data'''
 	from composition.utils import findExactPath
 	nelemn=0
@@ -698,8 +703,21 @@ def complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofN
 			listofActualLeafs.append(al)
 
 			nelemn+=1						
+	
+	#Add biobank patient identifier
+	path='/'+templateId+'/context/biobank/case_identification/biobank_patient_identifier'
+	# logging.debug(f'path={path}')
+	patientid=all_items_patient_i[1][1]
+	# logging.debug(f'patientid={patientid}')
+	bbpatientid=mapping_ids[patientid]
+	# logging.debug(f'bbpatientid={bbpatientid}')
+	al=fill_in_patientid(path,listofleafs,bbpatientid)
+	# logging.debug(f'len={len(listofActualLeafs)}')
+	listofActualLeafs.append(al)
+	# logging.debug(f'len={len(listofActualLeafs)}')
 
-		
+	nelemn+=1
+
 
 
 

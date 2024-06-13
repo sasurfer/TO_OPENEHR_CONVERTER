@@ -10,7 +10,7 @@ from crc_cohort.mapped_element_finder import mefinder,all_items,meventfinder,mti
 from crc_cohort.mapped_element_finder import complete_actual_leafs_crc,create_listofnoactualleafs_crc
 from crc_cohort.mapped_element_finder import fix_leaf_with_missing_fields_crc
 import copy
-
+from pathlib import Path
 import re
 from composition.leaf import ActualLeaf,ActualNoLeaf
 
@@ -179,10 +179,10 @@ def create_actual_leafs(listofleafs,all_items_patient_i,listofActualLeafs,listof
 #	logging.info(f'{xelemNC} should be instantiated (according only to leafs)')
 
 
-def complete_actual_leafs(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs):
+def complete_actual_leafs(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs,mapping_ids):
 	'''add default values taken from the template or not to the compulsory fields not fillable with the input data'''
 	if(config.fr==1):
-		complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
+		complete_actual_leafs_crc(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs,mapping_ids)
 		fix_leaf_with_missing_fields_crc(templateId,listofActualLeafs)
 
 	elif(config.fr==2):
@@ -303,3 +303,24 @@ def create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)
 
 	logging.info(f'{nnelem} mapped noleafs')
 	logging.info(f'{nxelem} noleafs not found')
+
+def read_blacklist(patients_blacklist_file):
+	bl_file = Path(patients_blacklist_file)
+	blacklist=[]
+	if bl_file.exists():
+		with open(bl_file, 'r') as f:
+			for line in f:
+				if line.startswith('#'):
+					continue
+				else:
+					blacklist.extend(line.strip().split(','))
+	return blacklist
+
+def read_mapping_ids(mapping_ids_file):
+	mapping_ids={}
+	with open(mapping_ids_file,'r') as f:	
+		for line in f:
+			kv=line.strip().split(',')
+			if kv[0].isnumeric():
+				mapping_ids[kv[0]]=kv[1]
+	return mapping_ids

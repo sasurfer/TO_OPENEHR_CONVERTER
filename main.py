@@ -11,13 +11,15 @@ from webtemplate.webtemplate_parser import parse_wt
 from crc_cohort.xml_parser import find_ns
 from composition.occurrences import FindOccurencesFromNoLeafs
 from composition.composition import Composition
-from composition.utils import readinput,retrieve_all_items_patient,check_missing_leafs,create_actual_leafs
+from composition.utils import read_blacklist,readinput,retrieve_all_items_patient,check_missing_leafs, \
+				create_actual_leafs, read_mapping_ids
 from composition.utils import create_actual_noleafs,complete_actual_leafs
 import argparse
 import config
 import copy
 import os
 import sys
+
 
 def main():
 	parser = argparse.ArgumentParser()
@@ -29,6 +31,8 @@ def main():
 	parser.add_argument('--check',action='store_true', help='check the missing leafs for leafs that should be there but are not')
 	parser.add_argument('--outputfilebasename',help='output file basename',default='output')
 	parser.add_argument('--ehrbase',action='store_true', help='flag to override ehrbase multiple section bug')
+	parser.add_argument('--patients_blacklist_file',help='file with list of patients to omit in output',default='./patient_blacklist')
+	parser.add_argument('--mapping_ids_file',help='file with mapping between postgresql id and biobank given id for patients',default='./FROM_DB_TO_ID_TABLE/id_table.csv')
 	args=parser.parse_args()
 
 	if(args.ehrbase):
@@ -46,6 +50,10 @@ def main():
 	logging.info(f'Running with logging level {loglevel}')
 
 	inputfile=args.inputfile
+
+	patients_blacklist_file=args.patients_blacklist_file
+	blacklist=read_blacklist(patients_blacklist_file)
+
 	webtemplate=args.webtemplate
 	outputfilebasename=args.outputfilebasename
 
@@ -54,6 +62,9 @@ def main():
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 	outputfilebasename=directory+outputfilebasename
+
+	mapping_ids_file=args.mapping_ids_file
+	mapping_ids=read_mapping_ids(mapping_ids_file)
 
 
 	if(args.convertfrom == "bbmrixml"):
@@ -120,8 +131,15 @@ def main():
 
 		patientid=all_items_patient_i[1][1]
 
+
 		print(f'*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
 		logging.info(f'*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
+
+		if patientid in blacklist:
+			print(f'PATIENT BLACKLISTED*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
+			logging.info(f'PATIENT_BLACKSLISTED*********%%%%####PATIENT {i+1}/{len(listofpatients)} patientid={patientid} ####%%%%%***********')
+			continue
+
 
 		outputfile=outputfilebasename+"_"+str(i+1)+"_id_"+patientid+".json"
 
@@ -137,7 +155,7 @@ def main():
 		create_actual_noleafs(listofnoleafs,all_items_patient_i,listofActualNoleafs)
 
 		#CREATE REMAINING REQUIRED ACTUAL LEAFS WHEN MISSING FROM THE XML FILE WITH A DEFAULT OR SPECIFIED VALUE
-		complete_actual_leafs(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs)
+		complete_actual_leafs(templateId,listofActualLeafs,listofnoleafs,listofNodes,all_items_patient_i,defaultLanguage,listofleafs,mapping_ids)
 
 
 		if(check):
