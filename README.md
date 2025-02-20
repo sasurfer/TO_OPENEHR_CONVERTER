@@ -18,4 +18,8 @@ Use example for ehrbase:
 python3 main.py --loglevel=INFO --inputfile=/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/CODE/FROM_DB_CSV_TO_XML_CONVERTER/patientsFromDb_8.xml --webtemplate=/usr/local/data/WORK/OPENEHR/ECOSYSTEM/TO_AND_FROM_CONVERTER/CODE/RESULTS/TEST/NEWTEMPLATE/mycrc_cohort6mod.json --outputfilebasename=myoutputceciDB8 --check --ehrbase 
 
 # Acknowledgments
-This work has been partially funded by the following sources the EOSC-Life European project (H2020, grant agreement N. 824087), within the EOSC-Life WP1 Demonstrator “Cloudification of BBMRI-ERIC CRC-Cohort and its Digital Pathology Imaging” (APPID 1228)
+This work has been partially funded by the following sources:
+<ul>
+<li> the EOSC-Life European project (H2020, grant agreement N. 824087), within the EOSC-Life WP1 Demonstrator “Cloudification of BBMRI-ERIC CRC-Cohort and its Digital Pathology Imaging” (APPID 1228)<\li>
+<li> the “Processing, Analysis, Exploration, and Sharing of Big and/or Complex Data” (XDATA) project (grant by the Sardinian Regional Authority)</li>
+</ul>
